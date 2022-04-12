@@ -7,9 +7,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.studentnotes.R
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiTextField
 import com.example.studentnotes.ui.theme.Blue700
@@ -31,7 +33,7 @@ fun GetAccessScreenBody(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "MAI Getpass",
+            text = stringResource(R.string.mai_getpass),
             style = Typography.h5,
             color = Blue700,
             textAlign = TextAlign.Center,
@@ -43,7 +45,7 @@ fun GetAccessScreenBody(
             onValueChange = {
                 fullName = it
             },
-            label = "ФИО"
+            label = stringResource(R.string.full_name)
         )
         Spacer(modifier = Modifier.size(12.dp))
         UiTextField(
@@ -51,16 +53,16 @@ fun GetAccessScreenBody(
             onValueChange = {
                 phoneNumber = it
             },
-            label = "Номер телефона"
+            label = stringResource(R.string.phone_number)
         )
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
-            text = "Продолжить",
+            text = stringResource(R.string.continue_string),
             onClick = {
                 if (fullName.isEmpty() || phoneNumber.isEmpty()) {
-                    Toast.makeText(context, "Необходимо заполнить поля!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.need_to_fill_all_fields), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Данные отправлены", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.data_was_sent), Toast.LENGTH_SHORT).show()
                     navController.popBackStack()
                 }
             }

@@ -7,8 +7,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.studentnotes.R
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
 
@@ -24,7 +26,7 @@ fun SettingsScreenBody(
         UiHeader(
             leftContent = {
                 Text(
-                    text = "Настройки",
+                    text = stringResource(R.string.settings),
                     style = Typography.h5,
                     color = Color.Black,
                     modifier = Modifier.padding(vertical = 12.dp)

@@ -1,5 +1,6 @@
 package com.example.studentnotes
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -10,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.studentnotes.ui.screens.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 
+@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
 @Composable

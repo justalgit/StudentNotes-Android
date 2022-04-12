@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">StudentNotes</string>
+    <string name="welcome_to_studentnotes">Добро пожаловать в StudentNotes!</string>
+    <string name="login">Логин</string>
+    <string name="sign_in">Войти</string>
+    <string name="need_to_fill_all_fields">Необходимо заполнить поля!</string>
+    <string name="get_access">Получить доступ</string>
+    <string name="events">События</string>
+    <string name="event_creation">Создание события</string>
+    <string name="title">Название</string>
+    <string name="no_description">Без описания</string>
+    <string name="description">Описание</string>
+    <string name="create_event">Создать событие</string>
+    <string name="event_searching">Поиск события</string>
+    <string name="mai_getpass">MAI Getpass</string>
+    <string name="full_name">ФИО</string>
+    <string name="phone_number">Номер телефона</string>
+    <string name="continue_string">Продолжить</string>
+    <string name="data_was_sent">Данные отправлены</string>
+    <string name="open_group">Открытая</string>
+    <string name="private_group">Приватная</string>
+    <string name="group_creation">Создание группы</string>
+    <string name="create_group">Создать группу</string>
+    <string name="group_searching">Поиск группы</string>
+    <string name="groups">Группы</string>
+    <string name="request_searching">Поиск запроса</string>
+    <string name="requests">Запросы</string>
+    <string name="settings">Настройки</string>
+    <string name="password">Пароль</string>
+    <string name="accept">Принять</string>
+    <string name="decline">Отклонить</string>
+    <string name="no_message">Без сообщения</string>
+    <string name="group_created_successfully">%s группа \"%s\" успешно создана</string>
+    <string name="event_created_successfully">Событие \"%s\" успешно создано</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.data.api.getEventsList
@@ -32,7 +33,7 @@ fun EventsScreenBody(
         UiHeader(
             leftContent = {
                 Text(
-                    text = "События",
+                    text = stringResource(R.string.events),
                     style = Typography.h5,
                     color = Color.Black
                 )

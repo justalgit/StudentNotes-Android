@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.studentnotes.R
 import com.example.studentnotes.data.entities.Request
 import com.example.studentnotes.ui.theme.Typography
 
@@ -36,7 +38,7 @@ fun RequestCard(
                     color = Color.Black
                 )
                 Text(
-                    text = request.message ?: "Без сообщения",
+                    text = request.message ?: stringResource(R.string.no_message),
                     style = Typography.caption,
                     color = Color.Gray
                 )

@@ -9,9 +9,11 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.studentnotes.R
 import com.example.studentnotes.ui.theme.Orange200
 
 @Composable
@@ -30,7 +32,7 @@ fun UiPasswordField(
             focusedIndicatorColor = Orange200,
             backgroundColor = Color.White
         ),
-        label = { Text("Пароль") },
+        label = { Text(stringResource(R.string.password)) },
         singleLine = true,
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),

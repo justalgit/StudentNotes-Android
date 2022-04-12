@@ -9,9 +9,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiPasswordField
@@ -39,7 +41,7 @@ fun WelcomeScreenBody(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Добро пожаловать в StudentNotes!",
+            text = stringResource(R.string.welcome_to_studentnotes),
             style = Typography.h5,
             color = Blue700,
             textAlign = TextAlign.Center,
@@ -51,7 +53,7 @@ fun WelcomeScreenBody(
             onValueChange = {
                 login = it
             },
-            label = "Логин"
+            label = stringResource(R.string.login)
         )
         Spacer(modifier = Modifier.size(12.dp))
         UiPasswordField(
@@ -66,17 +68,17 @@ fun WelcomeScreenBody(
         )
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
-            text = "Войти",
+            text = stringResource(R.string.sign_in),
             onClick = {
                 if (login.isEmpty() || password.isEmpty())
-                    Toast.makeText(context, "Необходимо заполнить поля!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.need_to_fill_all_fields), Toast.LENGTH_SHORT).show()
                 else
                     navController.navigate(Screen.MainPagerScreen.withArgs(login))
             }
         )
         Spacer(modifier = Modifier.size(24.dp))
         Text(
-            text = "Получить доступ",
+            text = stringResource(R.string.get_access),
             color = Blue200,
             textAlign = TextAlign.Center,
             modifier = Modifier

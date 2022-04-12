@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentnotes.data.entities.Group
@@ -20,6 +21,7 @@ import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Shapes
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.R
 
 @Composable
 fun GroupCard(
@@ -73,11 +75,12 @@ fun GroupPrivacyLabel(isPrivate: Boolean) {
         modifier = Modifier
             .background(
                 color = if (isPrivate) LightRed else LightGreen,
-                shape = Shapes.medium)
+                shape = Shapes.medium
+            )
             .clip(Shapes.medium)
     ) {
         Text(
-            text = if (isPrivate) "Закрытая" else "Открытая",
+            text = if (isPrivate) stringResource(R.string.private_group) else stringResource(R.string.open_group),
             color = Color.White,
             style = Typography.caption,
             modifier = Modifier

@@ -1,25 +1,33 @@
 package com.example.studentnotes.ui.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
-import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.studentnotes.R
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
+import com.example.studentnotes.ui.theme.Typography
 
+@ExperimentalAnimationApi
 @Composable
 fun GroupCreationScreenBody(
     navController: NavController
@@ -27,8 +35,20 @@ fun GroupCreationScreenBody(
 
     var groupTitle by rememberSaveable { mutableStateOf("") }
     var groupDescription by rememberSaveable { mutableStateOf("") }
-    var isGroupPrivate by rememberSaveable { mutableStateOf(false) }
     var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
+    val options = listOf(
+        stringResource(R.string.open_group),
+        stringResource(R.string.private_group)
+    )
+    var selectedOption by remember {
+        mutableStateOf(options[0])
+    }
+    val onSelectionChange = { text: String ->
+        selectedOption = text
+    }
+    val selectedOptionColor by animateColorAsState(
+        if (selectedOption == stringResource(R.string.open_group)) LightGreen else LightRed
+    )
 
     val context = LocalContext.current
 
@@ -45,7 +65,7 @@ fun GroupCreationScreenBody(
                 )
             },
             rightRowContent = {
-                Text("Создание группы".uppercase())
+                Text(stringResource(R.string.group_creation).uppercase())
             }
         )
         Spacer(modifier = Modifier.size(12.dp))
@@ -54,46 +74,93 @@ fun GroupCreationScreenBody(
             onValueChange = {
                 groupTitle = it
             },
-            label = "Название"
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        UiRadioGroup(
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            label = stringResource(R.string.title)
         )
         Spacer(modifier = Modifier.size(12.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            options.forEach { text ->
+                Box(
+                    modifier = Modifier
+                        .padding(
+                            all = 12.dp,
+                        ),
+                ) {
+                    Text(
+                        text = text,
+                        style = Typography.body1,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .clip(
+                                shape = RoundedCornerShape(
+                                    size = 12.dp,
+                                ),
+                            )
+                            .clickable {
+                                onSelectionChange(text)
+                            }
+                            .background(
+                                if (text == selectedOption) {
+                                    selectedOptionColor
+                                } else {
+                                    Color.LightGray
+                                }
+                            )
+                            .padding(
+                                vertical = 12.dp,
+                                horizontal = 16.dp,
+                            )
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.size(12.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = { isDescriptionAbsent = !isDescriptionAbsent }
+                )
         ) {
             Checkbox(
                 checked = isDescriptionAbsent,
-                onCheckedChange = { isDescriptionAbsent = !isDescriptionAbsent },
+                onCheckedChange = null
             )
             Text(
-                text = "Без описания",
+                text = stringResource(R.string.no_description),
                 color = Color.Black
             )
         }
-        Spacer(modifier = Modifier.size(12.dp))
-        if (!isDescriptionAbsent) {
+        AnimatedVisibility(!isDescriptionAbsent) {
+            Spacer(modifier = Modifier.size(12.dp))
             UiTextField(
                 value = groupDescription,
                 onValueChange = {
                     groupDescription = it
                 },
-                label = "Описание"
+                label = stringResource(R.string.description)
             )
         }
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
-            text = "Создать группу",
+            text = stringResource(R.string.create_group),
             onClick = {
                 if (groupTitle.isEmpty() || (groupDescription.isEmpty() && !isDescriptionAbsent)) {
-                    Toast.makeText(context, "Необходимо заполнить поля!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.need_to_fill_all_fields), Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(
                         context,
-                        "Группа \"$groupTitle\" успешно создана",
+                        context.getString(
+                            R.string.group_created_successfully,
+                            selectedOption,
+                            groupTitle
+                        ),
                         Toast.LENGTH_SHORT
                     ).show()
                     navController.popBackStack()
