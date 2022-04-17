@@ -1,14 +1,13 @@
 package com.example.studentnotes.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +21,7 @@ import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.Blue700
 import com.example.studentnotes.ui.theme.Typography
 
+@ExperimentalComposeUiApi
 @Composable
 fun WelcomeScreenBody(
     navController: NavController
@@ -30,8 +30,6 @@ fun WelcomeScreenBody(
     var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -69,13 +67,10 @@ fun WelcomeScreenBody(
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
             text = stringResource(R.string.sign_in),
-            onClick = {
-                if (login.isEmpty() || password.isEmpty())
-                    Toast.makeText(context, context.getString(R.string.need_to_fill_all_fields), Toast.LENGTH_SHORT).show()
-                else
-                    navController.navigate(Screen.MainPagerScreen.withArgs(login))
-            }
-        )
+            isEnabled = login.isNotBlank() && password.isNotBlank()
+        ) {
+            navController.navigate(Screen.MainPagerScreen.withArgs(login))
+        }
         Spacer(modifier = Modifier.size(24.dp))
         Text(
             text = stringResource(R.string.get_access),

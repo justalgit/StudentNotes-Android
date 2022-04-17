@@ -19,6 +19,7 @@ import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
+import com.example.studentnotes.data.entities.toJson
 import com.example.studentnotes.ui.theme.Typography
 
 @Composable
@@ -50,7 +51,12 @@ fun EventsScreenBody(
             }
         )
         EventsList(
-            events = getEventsList()
+            events = getEventsList(),
+            onEventClick = { event ->
+                navController.navigate(
+                    Screen.EventDetailsScreen.withArgs(event.toJson())
+                )
+            }
         )
     }
 }
@@ -58,14 +64,18 @@ fun EventsScreenBody(
 @Composable
 fun EventsList(
     modifier: Modifier = Modifier,
-    events: List<Event>
+    events: List<Event>,
+    onEventClick: (Event) -> Unit
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         items(events) { event ->
-            EventCard(event = event)
+            EventCard(
+                event = event,
+                onClick = { onEventClick(event) }
+            )
         }
     }
 }

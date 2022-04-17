@@ -10,8 +10,10 @@ sealed class Screen(
     object MainPagerScreen: Screen("main_pager_screen")
     object EventCreationScreen: Screen("event_creation_screen")
     object EventSearchScreen: Screen("event_search_screen")
+    object EventDetailsScreen: Screen("event_details_screen")
     object GroupCreationScreen: Screen("group_creation_screen")
     object GroupSearchScreen: Screen("group_search_screen")
+    object GroupDetailsScreen: Screen("group_details_screen")
     object RequestSearchScreen: Screen("request_search_screen")
 
     object SettingsScreen: Screen("settings_screen")

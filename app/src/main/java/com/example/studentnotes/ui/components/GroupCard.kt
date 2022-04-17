@@ -22,10 +22,13 @@ import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Shapes
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.R
+import com.example.studentnotes.utils.CARD_DESCRIPTION_LENGTH
+import com.example.studentnotes.utils.cutOff
 
 @Composable
 fun GroupCard(
-    group: Group
+    group: Group,
+    onClick: () -> Unit = {}
 ) {
     Card(
         backgroundColor = Color.White,
@@ -36,7 +39,7 @@ fun GroupCard(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = true),
-                onClick = {}
+                onClick = onClick
             ),
         elevation = 4.dp
     ) {
@@ -45,14 +48,16 @@ fun GroupCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = group.title,
                     style = Typography.body2,
                     color = Color.Black
                 )
                 Text(
-                    text = sliceString(group.description, 50),
+                    text = group.description.cutOff(CARD_DESCRIPTION_LENGTH),
                     style = Typography.caption,
                     color = Color.Gray
                 )

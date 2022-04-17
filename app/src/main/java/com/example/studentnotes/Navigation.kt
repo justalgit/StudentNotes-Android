@@ -3,14 +3,20 @@ package com.example.studentnotes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.ui.screens.*
 import com.google.accompanist.pager.ExperimentalPagerApi
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
+@ExperimentalComposeUiApi
 @OptIn(ExperimentalAnimationApi::class)
 @ExperimentalPagerApi
 @ExperimentalMaterialApi
@@ -91,6 +97,40 @@ fun Navigation() {
         ) {
             SettingsScreenBody(
                 navController = navController
+            )
+        }
+        composable(
+            route = Screen.EventDetailsScreen.route + "/{event}",
+            arguments = listOf(
+                navArgument("event") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            val eventJson =  entry.arguments?.getString("event")
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val jsonAdapter = moshi.adapter(Event::class.java).lenient()
+            EventDetailsScreenBody(
+                navController = navController,
+                event = jsonAdapter.fromJson(eventJson)
+            )
+        }
+        composable(
+            route = Screen.GroupDetailsScreen.route + "/{group}",
+            arguments = listOf(
+                navArgument("group") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            val groupJson =  entry.arguments?.getString("group")
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val jsonAdapter = moshi.adapter(Group::class.java).lenient()
+            GroupDetailsScreenBody(
+                navController = navController,
+                group = jsonAdapter.fromJson(groupJson)
             )
         }
     }

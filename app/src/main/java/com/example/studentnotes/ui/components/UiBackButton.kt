@@ -15,7 +15,7 @@ fun UiBackButton(
     onClick: () -> Unit
 ) {
     Image(
-        painter = painterResource(R.drawable.ic_arrow_back_black_36),
+        painter = painterResource(R.drawable.ic_arrow_back_24),
         contentDescription = null,
         modifier = Modifier
             .clickable(

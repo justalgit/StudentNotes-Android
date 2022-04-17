@@ -25,12 +25,12 @@ fun UiIconButton(
         modifier = Modifier
             .background(Blue500, CircleShape)
             .clip(CircleShape)
-            .padding(8.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple(bounded = false),
                 onClick = onClick
             )
+            .padding(8.dp)
     ) {
         Image(
             painter = painter,

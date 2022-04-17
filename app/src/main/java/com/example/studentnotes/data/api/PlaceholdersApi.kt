@@ -3,55 +3,56 @@ package com.example.studentnotes.data.api
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.entities.Request
-import java.util.*
 
 fun getEventsList() = listOf(
     Event(
         title = "Сделать ДЗ по английскому",
         description = "Новый тест по старому модулю",
         author = "Алексей Воробьев",
-        eventDate = Date(2022, 4, 7, 14, 45),
-        creationDate = Date(2022, 4, 3, 21, 30),
+        eventDate = 12345L,
+        lastModifiedDate = 12345L,
         group = "М8О-203М-20"
     ),
     Event(
         title = "Сделать ДЗ по английскому",
         description = "Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю",
         author = "Алексей Воробьев",
-        eventDate = Date(2022, 4, 7, 14, 45),
-        creationDate = Date(2022, 4, 3, 21, 30),
+        eventDate = 12345L,
+        lastModifiedDate = 12345L,
         group = "М8О-203М-20"
     ),
     Event(
         title = "Сделать ДЗ по английскому",
         description = "Новый тест по старому модулю",
         author = "Алексей Воробьев",
-        eventDate = Date(2022, 4, 7, 14, 45),
-        creationDate = Date(2022, 4, 3, 21, 30),
-        group = "М8О-203М-20"
+        eventDate = 12345L,
+        lastModifiedDate = 12345L,
+        group = "М8О-203М-20",
+        isEditable = false
     ),
     Event(
         title = "Сделать ДЗ по английскому",
         description = "Новый тест по старому модулю Новый тест по старому модулю модулю модулю модулю",
         author = "Алексей Воробьев",
-        eventDate = Date(2022, 4, 7, 14, 45),
-        creationDate = Date(2022, 4, 3, 21, 30),
+        eventDate = 12345L,
+        lastModifiedDate = 12345L,
         group = "М8О-203М-20"
     ),
     Event(
         title = "Сделать ДЗ по английскому",
         description = "Новый тест по старому модулю",
         author = "Алексей Воробьев",
-        eventDate = Date(2022, 4, 7, 14, 45),
-        creationDate = Date(2022, 4, 3, 21, 30),
-        group = "М8О-203М-20"
+        eventDate = 12345L,
+        lastModifiedDate = 12345L,
+        group = "М8О-203М-20цшцофвдфцдвоыоафцлащфлыафцжылаужфжцааыдлацфдыжафуаывыау",
+        isEditable = false
     )
 )
 
 fun getGroupsList() = listOf(
     Group(
-        title = "М8О-203М-20",
-        description = "Самые крутые ребята",
+        title = "М8О-203М-20цшцофвдфцдвоыоафцлащфлыафцжылаужфжцааыдлацфдыжафуаывыау",
+        description = "Самые крутые ребята блин воще просто пушка вау это очень долгое описание",
         creator = "Алексей Воробьев",
         isPrivate = true
     ),

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,6 +19,9 @@ import com.example.studentnotes.ui.theme.Typography
 fun RequestCard(
     request: Request
 ) {
+
+    val context = LocalContext.current
+
     Card(
         backgroundColor = Color.White,
         modifier = Modifier
@@ -33,7 +37,11 @@ fun RequestCard(
         ) {
             Column {
                 Text(
-                    text = "${request.author} хочет вступить в группу \"${request.group}\"",
+                    text = context.getString(
+                        R.string.user_wants_to_join_group,
+                        request.author,
+                        request.group
+                    ),
                     style = Typography.body2,
                     color = Color.Black
                 )

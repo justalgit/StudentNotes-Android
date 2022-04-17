@@ -16,6 +16,7 @@ import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.data.api.getGroupsList
 import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.entities.toJson
 import com.example.studentnotes.ui.components.GroupCard
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
@@ -51,7 +52,12 @@ fun GroupsScreenBody(
             }
         )
         GroupsList(
-            groups = getGroupsList()
+            groups = getGroupsList(),
+            onGroupClick = { group ->
+                navController.navigate(
+                    Screen.GroupDetailsScreen.withArgs(group.toJson())
+                )
+            }
         )
     }
 }
@@ -59,14 +65,18 @@ fun GroupsScreenBody(
 @Composable
 fun GroupsList(
     modifier: Modifier = Modifier,
-    groups: List<Group>
+    groups: List<Group>,
+    onGroupClick: (Group) -> Unit
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         items(groups) { group ->
-            GroupCard(group)
+            GroupCard(
+                group = group,
+                onClick = { onGroupClick(group) }
+            )
         }
     }
 }

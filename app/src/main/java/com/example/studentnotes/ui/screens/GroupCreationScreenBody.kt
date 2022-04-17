@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -27,6 +28,7 @@ import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
 
+@ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun GroupCreationScreenBody(
@@ -91,7 +93,7 @@ fun GroupCreationScreenBody(
                     Text(
                         text = text,
                         style = Typography.body1,
-                        color = Color.Black,
+                        color = Color.White,
                         modifier = Modifier
                             .clip(
                                 shape = RoundedCornerShape(
@@ -139,7 +141,7 @@ fun GroupCreationScreenBody(
         }
         AnimatedVisibility(!isDescriptionAbsent) {
             Spacer(modifier = Modifier.size(12.dp))
-            UiTextField(
+            UiTextArea(
                 value = groupDescription,
                 onValueChange = {
                     groupDescription = it
@@ -150,21 +152,18 @@ fun GroupCreationScreenBody(
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
             text = stringResource(R.string.create_group),
+            isEnabled = groupTitle.isNotBlank() && (isDescriptionAbsent || !isDescriptionAbsent && groupDescription.isNotBlank()),
             onClick = {
-                if (groupTitle.isEmpty() || (groupDescription.isEmpty() && !isDescriptionAbsent)) {
-                    Toast.makeText(context, context.getString(R.string.need_to_fill_all_fields), Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(
-                        context,
-                        context.getString(
-                            R.string.group_created_successfully,
-                            selectedOption,
-                            groupTitle
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navController.popBackStack()
-                }
+                Toast.makeText(
+                    context,
+                    context.getString(
+                        R.string.group_created_successfully,
+                        selectedOption,
+                        groupTitle
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+                navController.popBackStack()
             }
         )
     }

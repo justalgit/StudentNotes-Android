@@ -14,8 +14,7 @@ fun UiHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .padding(horizontal = 8.dp)
+            .height(64.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),

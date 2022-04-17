@@ -6,7 +6,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -16,15 +16,15 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.studentnotes.ui.theme.Orange200
 
 @ExperimentalComposeUiApi
 @Composable
-fun UiTextField(
+fun UiPhoneField(
     value: String,
     label: String,
-    onValueChange: (String) -> Unit = {},
-    isLastEditField: Boolean = false
+    onValueChange: (String) -> Unit = {}
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -43,21 +43,19 @@ fun UiTextField(
         modifier = Modifier
             .fillMaxWidth()
             .onPreviewKeyEvent {
-            if (it.key == Key.Tab){
-                focusManager.moveFocus(FocusDirection.Down)
-                true
-            } else {
-                false
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        keyboardActions = KeyboardActions(
-            onNext = {
-                if (isLastEditField)
-                    focusManager.clearFocus()
-                else
+                if (it.key == Key.Tab){
                     focusManager.moveFocus(FocusDirection.Down)
-            }
+                    true
+                } else {
+                    false
+                }
+            },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Phone,
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.clearFocus() }
         )
     )
 }

@@ -3,7 +3,6 @@
     <string name="welcome_to_studentnotes">Добро пожаловать в StudentNotes!</string>
     <string name="login">Логин</string>
     <string name="sign_in">Войти</string>
-    <string name="need_to_fill_all_fields">Необходимо заполнить поля!</string>
     <string name="get_access">Получить доступ</string>
     <string name="events">События</string>
     <string name="event_creation">Создание события</string>
@@ -32,4 +31,10 @@
     <string name="no_message">Без сообщения</string>
     <string name="group_created_successfully">%s группа \"%s\" успешно создана</string>
     <string name="event_created_successfully">Событие \"%s\" успешно создано</string>
+    <string name="selected_event">Выбранное событие</string>
+    <string name="selected_group">Выбранная группа</string>
+    <string name="last_modified_by">Последнее изменение: %s в %s</string>
+    <string name="author">Автор: %s</string>
+    <string name="user_wants_to_join_group">Пользователь %s хочет вступить в группу \"%s\"</string>
+    <string name="getting_access">Получение доступа</string>
 </resources>

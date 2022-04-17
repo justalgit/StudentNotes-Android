@@ -13,13 +13,15 @@ import com.example.studentnotes.ui.theme.Typography
 fun UiBigButton(
     modifier: Modifier = Modifier,
     text: String,
+    isEnabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     Button(
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp),
-        onClick = onClick
+        onClick = onClick,
+        enabled = isEnabled
     ) {
         Text(
             text = text,
