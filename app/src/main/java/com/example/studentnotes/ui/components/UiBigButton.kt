@@ -6,7 +6,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.studentnotes.ui.theme.Shapes
 import com.example.studentnotes.ui.theme.Typography
 
 @Composable
@@ -17,6 +19,7 @@ fun UiBigButton(
     onClick: () -> Unit = {}
 ) {
     Button(
+        shape = Shapes.medium,
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp),
@@ -24,8 +27,9 @@ fun UiBigButton(
         enabled = isEnabled
     ) {
         Text(
-            text = text,
-            style = Typography.body1
+            text = text.uppercase(),
+            fontWeight = FontWeight.SemiBold,
+            style = Typography.caption
         )
     }
 }

@@ -102,7 +102,10 @@ fun GroupCardPreview() {
             title = "М8О-203М-20",
             description = "Самые крутые ребята",
             creator = "Алексей Воробьев",
-            isPrivate = true
+            lastModifiedDate = 12345L,
+            lastModifiedUser = "Алексей Воробьев",
+            isPrivate = true,
+            isEditable = true
         )
     )
 }

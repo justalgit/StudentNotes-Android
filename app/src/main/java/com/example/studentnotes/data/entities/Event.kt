@@ -7,8 +7,9 @@ data class Event(
     var title: String,
     var description: String,
     var eventDate: Long,
-    var lastModifiedDate: Long,
     var author: String,
+    var lastModifiedDate: Long,
+    var lastModifiedUser: String,
     var group: String,
     var isEditable: Boolean = true
 )

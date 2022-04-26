@@ -37,4 +37,8 @@
     <string name="author">Автор: %s</string>
     <string name="user_wants_to_join_group">Пользователь %s хочет вступить в группу \"%s\"</string>
     <string name="getting_access">Получение доступа</string>
+    <string name="author_made_event_uneditable">Автор ограничил возможность редактирования события</string>
+    <string name="creator_made_group_uneditable">Создатель группы ограничил возможность ее редактирования</string>
+    <string name="edit">Редактировать</string>
+    <string name="invite">Пригласить</string>
 </resources>

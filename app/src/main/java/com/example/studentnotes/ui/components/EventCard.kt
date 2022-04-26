@@ -93,6 +93,7 @@ fun EventCardPreview() {
                 author = "Алексей Воробьев",
                 eventDate = 12345L,
                 lastModifiedDate = 12345L,
+                lastModifiedUser = "Алексей Воробьев",
                 group = "М8О-203М-20"
             )
         )
@@ -103,6 +104,7 @@ fun EventCardPreview() {
                 author = "Алексей Воробьев",
                 eventDate = 12345L,
                 lastModifiedDate = 12345L,
+                lastModifiedUser = "Алексей Воробьев",
                 group = "М8О-203М-20"
             )
         )

@@ -11,6 +11,7 @@ fun getEventsList() = listOf(
         author = "Алексей Воробьев",
         eventDate = 12345L,
         lastModifiedDate = 12345L,
+        lastModifiedUser = "Алексей Воробьев",
         group = "М8О-203М-20"
     ),
     Event(
@@ -19,6 +20,7 @@ fun getEventsList() = listOf(
         author = "Алексей Воробьев",
         eventDate = 12345L,
         lastModifiedDate = 12345L,
+        lastModifiedUser = "Влад Петрушин",
         group = "М8О-203М-20"
     ),
     Event(
@@ -27,6 +29,7 @@ fun getEventsList() = listOf(
         author = "Алексей Воробьев",
         eventDate = 12345L,
         lastModifiedDate = 12345L,
+        lastModifiedUser = "Анна Никитина",
         group = "М8О-203М-20",
         isEditable = false
     ),
@@ -36,6 +39,7 @@ fun getEventsList() = listOf(
         author = "Алексей Воробьев",
         eventDate = 12345L,
         lastModifiedDate = 12345L,
+        lastModifiedUser = "Алексей Винников",
         group = "М8О-203М-20"
     ),
     Event(
@@ -44,6 +48,7 @@ fun getEventsList() = listOf(
         author = "Алексей Воробьев",
         eventDate = 12345L,
         lastModifiedDate = 12345L,
+        lastModifiedUser = "Антон Ларин",
         group = "М8О-203М-20цшцофвдфцдвоыоафцлащфлыафцжылаужфжцааыдлацфдыжафуаывыау",
         isEditable = false
     )
@@ -54,13 +59,37 @@ fun getGroupsList() = listOf(
         title = "М8О-203М-20цшцофвдфцдвоыоафцлащфлыафцжылаужфжцааыдлацфдыжафуаывыау",
         description = "Самые крутые ребята блин воще просто пушка вау это очень долгое описание",
         creator = "Алексей Воробьев",
-        isPrivate = true
+        lastModifiedDate = 12345L,
+        lastModifiedUser = "Антон Ларин",
+        isPrivate = true,
+        isEditable = true
     ),
     Group(
         title = "М8О-103М-21",
         description = "Тоже ничего такие",
         creator = "Кое Кто",
-        isPrivate = false
+        lastModifiedDate = 12345L,
+        lastModifiedUser = "Анонимус",
+        isPrivate = false,
+        isEditable = true
+    ),
+    Group(
+        title = "М8О-203М-20",
+        description = "Самые крутые ребята блин воще просто пушка вау это очень долгое описание",
+        creator = "Алексей Воробьев",
+        lastModifiedDate = 12345L,
+        lastModifiedUser = "Антон Ларин",
+        isPrivate = true,
+        isEditable = false
+    ),
+    Group(
+        title = "М8О-103М-21",
+        description = "Тоже ничего такие",
+        creator = "Кое Кто",
+        lastModifiedDate = 12345L,
+        lastModifiedUser = "Анонимус",
+        isPrivate = false,
+        isEditable = false
     )
 )
 
