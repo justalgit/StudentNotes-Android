@@ -85,7 +85,7 @@ fun GroupPrivacyLabel(isPrivate: Boolean) {
             .clip(Shapes.medium)
     ) {
         Text(
-            text = if (isPrivate) stringResource(R.string.private_group) else stringResource(R.string.open_group),
+            text = if (isPrivate) stringResource(R.string.closed_group) else stringResource(R.string.open_group),
             color = Color.White,
             style = Typography.caption,
             modifier = Modifier

@@ -20,6 +20,7 @@ import com.example.studentnotes.ui.components.UiIconButton
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.data.entities.toJson
+import com.example.studentnotes.ui.components.EventsList
 import com.example.studentnotes.ui.theme.Typography
 
 @Composable
@@ -58,24 +59,5 @@ fun EventsScreenBody(
                 )
             }
         )
-    }
-}
-
-@Composable
-fun EventsList(
-    modifier: Modifier = Modifier,
-    events: List<Event>,
-    onEventClick: (Event) -> Unit
-) {
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        items(events) { event ->
-            EventCard(
-                event = event,
-                onClick = { onEventClick(event) }
-            )
-        }
     }
 }

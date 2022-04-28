@@ -17,7 +17,7 @@
     <string name="continue_string">Продолжить</string>
     <string name="data_was_sent">Данные отправлены</string>
     <string name="open_group">Открытая</string>
-    <string name="private_group">Приватная</string>
+    <string name="closed_group">Закрытая</string>
     <string name="group_creation">Создание группы</string>
     <string name="create_group">Создать группу</string>
     <string name="group_searching">Поиск группы</string>
@@ -41,4 +41,9 @@
     <string name="creator_made_group_uneditable">Создатель группы ограничил возможность ее редактирования</string>
     <string name="edit">Редактировать</string>
     <string name="invite">Пригласить</string>
+    <string name="group">Группа</string>
+    <string name="editable_event">Редактируемое событие</string>
+    <string name="editable_group">Редактируемая группа</string>
+    <string name="event_title">Название события</string>
+    <string name="not_found">Ничего не найдено :(</string>
 </resources>

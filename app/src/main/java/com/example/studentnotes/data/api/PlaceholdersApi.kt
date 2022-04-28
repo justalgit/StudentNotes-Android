@@ -15,7 +15,7 @@ fun getEventsList() = listOf(
         group = "М8О-203М-20"
     ),
     Event(
-        title = "Сделать ДЗ по английскому",
+        title = "Запрогать",
         description = "Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю",
         author = "Алексей Воробьев",
         eventDate = 12345L,
@@ -24,7 +24,7 @@ fun getEventsList() = listOf(
         group = "М8О-203М-20"
     ),
     Event(
-        title = "Сделать ДЗ по английскому",
+        title = "Смоделировать",
         description = "Новый тест по старому модулю",
         author = "Алексей Воробьев",
         eventDate = 12345L,
@@ -34,7 +34,7 @@ fun getEventsList() = listOf(
         isEditable = false
     ),
     Event(
-        title = "Сделать ДЗ по английскому",
+        title = "Нарисовать",
         description = "Новый тест по старому модулю Новый тест по старому модулю модулю модулю модулю",
         author = "Алексей Воробьев",
         eventDate = 12345L,
@@ -43,7 +43,7 @@ fun getEventsList() = listOf(
         group = "М8О-203М-20"
     ),
     Event(
-        title = "Сделать ДЗ по английскому",
+        title = "Сдать вот это вот",
         description = "Новый тест по старому модулю",
         author = "Алексей Воробьев",
         eventDate = 12345L,

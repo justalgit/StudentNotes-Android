@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.data.api.getGroupsList
 import com.example.studentnotes.ui.components.*
 
 @ExperimentalComposeUiApi
@@ -31,67 +32,96 @@ fun EventCreationScreenBody(
     var eventTitle by rememberSaveable { mutableStateOf("") }
     var eventDescription by rememberSaveable { mutableStateOf("") }
     var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
+    var isEventEditable by rememberSaveable { mutableStateOf(true) }
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .wrapContentHeight()
-            .padding(horizontal = 12.dp),
-        horizontalAlignment = Alignment.Start
+            .padding(start = 12.dp, end = 12.dp, bottom = 16.dp)
     ) {
-        UiHeader(
-            leftContent = {
-                UiBackButton(
-                    onClick = { navController.popBackStack() }
-                )
-            },
-            rightRowContent = {
-                Text(stringResource(R.string.event_creation).uppercase())
-            }
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        UiTextField(
-            value = eventTitle,
-            onValueChange = {
-                eventTitle = it
-            },
-            label = stringResource(R.string.title),
-        )
-        Spacer(modifier = Modifier.size(12.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .padding(8.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = { isDescriptionAbsent = !isDescriptionAbsent }
-                )
+
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
         ) {
-            Checkbox(
-                checked = isDescriptionAbsent,
-                onCheckedChange = { isDescriptionAbsent = !isDescriptionAbsent },
-            )
-            Text(
-                text = stringResource(R.string.no_description),
-                color = Color.Black
-            )
-        }
-        AnimatedVisibility(!isDescriptionAbsent) {
-            Spacer(modifier = Modifier.size(12.dp))
-            UiTextArea(
-                value = eventDescription,
-                onValueChange = {
-                    eventDescription = it
+            UiHeader(
+                leftContent = {
+                    UiBackButton(
+                        onClick = { navController.popBackStack() }
+                    )
                 },
-                label = stringResource(R.string.description)
+                rightRowContent = {
+                    Text(stringResource(R.string.event_creation).uppercase())
+                }
             )
+            UiTextField(
+                value = eventTitle,
+                onValueChange = {
+                    eventTitle = it
+                },
+                label = stringResource(R.string.title),
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { isDescriptionAbsent = !isDescriptionAbsent }
+                    )
+            ) {
+                Checkbox(
+                    checked = isDescriptionAbsent,
+                    onCheckedChange = { isDescriptionAbsent = !isDescriptionAbsent },
+                )
+                Text(
+                    text = stringResource(R.string.no_description),
+                    color = Color.Black
+                )
+            }
+            AnimatedVisibility(!isDescriptionAbsent) {
+                UiTextArea(
+                    value = eventDescription,
+                    onValueChange = {
+                        eventDescription = it
+                    },
+                    label = stringResource(R.string.description)
+                )
+            }
+            UiDropdownList(
+                label = stringResource(R.string.group),
+                suggestions = getGroupsList().map { it.title }.distinct()
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { isEventEditable = !isEventEditable }
+                    )
+            ) {
+                Checkbox(
+                    checked = isEventEditable,
+                    onCheckedChange = { isEventEditable = !isEventEditable },
+                )
+                Text(
+                    text = stringResource(R.string.editable_event),
+                    color = Color.Black
+                )
+            }
         }
-        Spacer(modifier = Modifier.size(24.dp))
+
         UiBigButton(
             text = stringResource(R.string.create_event),
-            isEnabled = eventTitle.isNotBlank() && (isDescriptionAbsent || !isDescriptionAbsent && eventDescription.isNotBlank())
+            isEnabled = eventTitle.isNotBlank() && (
+                    isDescriptionAbsent || !isDescriptionAbsent && eventDescription.isNotBlank())
         ) {
             Toast.makeText(
                 context,
