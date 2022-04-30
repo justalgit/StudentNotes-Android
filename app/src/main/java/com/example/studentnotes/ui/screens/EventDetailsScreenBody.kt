@@ -42,7 +42,7 @@ fun EventDetailsScreenBody(
                 )
             },
             rightRowContent = {
-                Text(event!!.group.cutOff(HEADER_TITLE_LENGTH).uppercase())
+                Text(event!!.groupId.cutOff(HEADER_TITLE_LENGTH).uppercase())
             }
         )
         if (event != null) {
@@ -63,14 +63,14 @@ fun EventDetailsScreenBody(
                     color = Color.Black
                 )
                 Text(
-                    text = event.description,
+                    text = event.description ?: stringResource(R.string.no_description),
                     style = Typography.body1,
                     color = Color.Black
                 )
                 Text(
                     text = context.getString(
                         R.string.last_modified_by,
-                        event.author,
+                        event.authorId,
                         event.lastModifiedDate.toString()
                     ),
                     style = Typography.caption,

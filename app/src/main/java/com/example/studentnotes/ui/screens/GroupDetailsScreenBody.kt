@@ -59,12 +59,12 @@ fun GroupDetailsScreenBody(
                     color = Color.Black
                 )
                 Text(
-                    text = context.getString(R.string.author, group.creator),
+                    text = context.getString(R.string.author, group.creatorId),
                     style = Typography.body2,
                     color = Color.Black
                 )
                 Text(
-                    text = group.description,
+                    text = group?.description ?: stringResource(R.string.no_description),
                     style = Typography.body1,
                     color = Color.Black
                 )

@@ -57,12 +57,12 @@ fun GroupCard(
                     color = Color.Black
                 )
                 Text(
-                    text = group.description.cutOff(CARD_DESCRIPTION_LENGTH),
+                    text = group.description?.cutOff(CARD_DESCRIPTION_LENGTH) ?: stringResource(R.string.no_description),
                     style = Typography.caption,
                     color = Color.Gray
                 )
                 Text(
-                    text = "Автор: ${group.creator}",
+                    text = "Автор: ${group.creatorId}",
                     style = Typography.caption,
                     color = Color.Gray
                 )
@@ -99,11 +99,12 @@ fun GroupPrivacyLabel(isPrivate: Boolean) {
 fun GroupCardPreview() {
     GroupCard(
         group = Group(
+            id = "123",
             title = "М8О-203М-20",
             description = "Самые крутые ребята",
-            creator = "Алексей Воробьев",
+            creatorId = "Алексей Воробьев",
             lastModifiedDate = 12345L,
-            lastModifiedUser = "Алексей Воробьев",
+            lastModifiedUserId = "Алексей Воробьев",
             isPrivate = true,
             isEditable = true
         )

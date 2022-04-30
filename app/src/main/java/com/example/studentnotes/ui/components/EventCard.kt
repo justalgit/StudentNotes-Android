@@ -60,12 +60,12 @@ fun EventCard(
                     color = Color.Black
                 )
                 Text(
-                    text = event.group,
+                    text = event.groupId,
                     style = Typography.caption,
                     color = Color.Black
                 )
                 Text(
-                    text = context.getString(R.string.author, event.author),
+                    text = context.getString(R.string.author, event.authorId),
                     style = Typography.caption,
                     color = Color.Gray
                 )
@@ -88,24 +88,26 @@ fun EventCardPreview() {
     ) {
         EventCard(
             event = Event(
+                id = "123",
                 title = "Сделать ДЗ по английскому",
                 description = "Новый тест по старому модулю",
-                author = "Алексей Воробьев",
+                authorId = "Алексей Воробьев",
                 eventDate = 12345L,
                 lastModifiedDate = 12345L,
-                lastModifiedUser = "Алексей Воробьев",
-                group = "М8О-203М-20"
+                lastModifiedUserId = "Алексей Воробьев",
+                groupId = "М8О-203М-20"
             )
         )
         EventCard(
             event = Event(
+                id = "123",
                 title = "Сделать ДЗ по английскому",
                 description = "Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю",
-                author = "Алексей Воробьев",
+                authorId = "Алексей Воробьев",
                 eventDate = 12345L,
                 lastModifiedDate = 12345L,
-                lastModifiedUser = "Алексей Воробьев",
-                group = "М8О-203М-20"
+                lastModifiedUserId = "Алексей Воробьев",
+                groupId = "М8О-203М-20"
             )
         )
     }

@@ -23,10 +23,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
+import kotlinx.coroutines.launch
+import java.util.*
 
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
@@ -34,11 +40,6 @@ import com.example.studentnotes.ui.theme.Typography
 fun GroupCreationScreenBody(
     navController: NavController
 ) {
-
-    var groupTitle by rememberSaveable { mutableStateOf("") }
-    var groupDescription by rememberSaveable { mutableStateOf("") }
-    var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
-    var isEventEditable by rememberSaveable { mutableStateOf(true) }
 
     val options = listOf(
         stringResource(R.string.open_group),
@@ -54,7 +55,16 @@ fun GroupCreationScreenBody(
         if (selectedOption == stringResource(R.string.open_group)) LightGreen else LightRed
     )
 
+    var groupTitle by rememberSaveable { mutableStateOf("") }
+    var groupDescription by rememberSaveable { mutableStateOf("") }
+    var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
+    var isGroupEditable by rememberSaveable { mutableStateOf(true) }
+
     val context = LocalContext.current
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -160,11 +170,11 @@ fun GroupCreationScreenBody(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = { isEventEditable = !isEventEditable }
+                        onClick = { isGroupEditable = !isGroupEditable }
                     )
             ) {
                 Checkbox(
-                    checked = isEventEditable,
+                    checked = isGroupEditable,
                     onCheckedChange = null
                 )
                 Text(
@@ -178,6 +188,20 @@ fun GroupCreationScreenBody(
             text = stringResource(R.string.create_group),
             isEnabled = groupTitle.isNotBlank() && (isDescriptionAbsent || !isDescriptionAbsent && groupDescription.isNotBlank()),
             onClick = {
+                coroutineScope.launch {
+                    databaseRepo.insertGroup(
+                        Group(
+                            id = UUID.randomUUID().toString(),
+                            title = groupTitle,
+                            description = if (!isDescriptionAbsent) groupDescription else null,
+                            creatorId = CURRENT_USER_PLACEHOLDER_ID,
+                            lastModifiedDate = 12345L,
+                            lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID,
+                            isPrivate = selectedOption == context.getString(R.string.closed_group),
+                            isEditable = isGroupEditable
+                        )
+                    )
+                }
                 Toast.makeText(
                     context,
                     context.getString(

@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.api.getGroupsList
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.toJson
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiTextField
@@ -31,10 +33,14 @@ fun GroupSearchScreenBody(
     navController: NavController
 ) {
 
-    var groupTitle by rememberSaveable { mutableStateOf("") }
-    var filteredGroups by rememberSaveable { mutableStateOf(getGroupsList()) }
-
     val context = LocalContext.current
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val groupsList = databaseRepo.getAllGroups().value ?: emptyList()
+
+    var groupTitle by rememberSaveable { mutableStateOf("") }
+    var filteredGroups by rememberSaveable { mutableStateOf(groupsList) }
 
     Column(
         modifier = Modifier
@@ -57,13 +63,13 @@ fun GroupSearchScreenBody(
             value = groupTitle,
             onValueChange = {
                 groupTitle = it
-                filteredGroups = getGroupsList().filter {
+                filteredGroups = groupsList!!.filter {
                     it.title.contains(groupTitle, ignoreCase = true)
                 }
             },
             label = stringResource(R.string.event_title)
         )
-        if (filteredGroups.isEmpty()) {
+        if (filteredGroups!!.isEmpty()) {
             Text(
                 text = context.getString(R.string.not_found),
                 style = Typography.body1,
@@ -75,7 +81,7 @@ fun GroupSearchScreenBody(
             )
         } else {
             GroupsList(
-                groups = filteredGroups,
+                groups = filteredGroups!!,
                 onGroupClick = { group ->
                     navController.navigate(
                         Screen.GroupDetailsScreen.withArgs(group.toJson())

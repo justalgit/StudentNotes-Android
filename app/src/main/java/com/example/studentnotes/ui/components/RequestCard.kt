@@ -39,8 +39,8 @@ fun RequestCard(
                 Text(
                     text = context.getString(
                         R.string.user_wants_to_join_group,
-                        request.author,
-                        request.group
+                        request.authorId,
+                        request.groupId
                     ),
                     style = Typography.body2,
                     color = Color.Black
@@ -78,8 +78,10 @@ fun RequestCard(
 fun RequestCardPreview() {
     RequestCard(
         request = Request(
-            author = "Макар Павлов",
-            group = "М8О-203М-20",
+            id = "123",
+            authorId = "Макар Павлов",
+            groupId = "М8О-203М-20",
+            requestDate = 123L,
             message = "Я передумал, пустите меня обратно..."
         )
     )

@@ -8,24 +8,37 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.entities.User
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiPasswordField
 import com.example.studentnotes.ui.components.UiTextField
 import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.Blue700
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
+import kotlinx.coroutines.launch
+import java.util.*
 
 @ExperimentalComposeUiApi
 @Composable
 fun WelcomeScreenBody(
     navController: NavController
 ) {
+
+    val context = LocalContext.current
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val coroutineScope = rememberCoroutineScope()
 
     var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -69,6 +82,16 @@ fun WelcomeScreenBody(
             text = stringResource(R.string.sign_in),
             isEnabled = login.isNotBlank() && password.isNotBlank()
         ) {
+            CURRENT_USER_PLACEHOLDER_ID = UUID.randomUUID().toString()
+            coroutineScope.launch {
+                databaseRepo.createInitUser(
+                    User(
+                        id = CURRENT_USER_PLACEHOLDER_ID,
+                        name = "Антон",
+                        surname = "Ларин"
+                    )
+                )
+            }
             navController.navigate(Screen.MainPagerScreen.withArgs(login))
         }
         Spacer(modifier = Modifier.size(24.dp))

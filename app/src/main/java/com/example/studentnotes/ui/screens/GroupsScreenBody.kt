@@ -1,22 +1,27 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.api.getGroupsList
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.entities.toJson
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.GroupCard
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
@@ -26,6 +31,13 @@ import com.example.studentnotes.ui.theme.Typography
 fun GroupsScreenBody(
     navController: NavController
 ) {
+
+    val context = LocalContext.current
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val groupsList = databaseRepo.getAllGroups().observeAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +64,7 @@ fun GroupsScreenBody(
             }
         )
         GroupsList(
-            groups = getGroupsList(),
+            groups = groupsList.value ?: emptyList(),
             onGroupClick = { group ->
                 navController.navigate(
                     Screen.GroupDetailsScreen.withArgs(group.toJson())
