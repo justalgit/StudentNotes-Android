@@ -1,6 +1,5 @@
 package com.example.studentnotes.data.repositories
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.Event
@@ -18,8 +17,8 @@ class DatabaseRepository(private val database: StudentNotesDatabase) {
         }
     }
 
-    suspend fun getUserById(userId: String): User? {
-        return database.userDao.getUserById(userId).value
+    fun getGroupByTitle(groupTitle: String): Group {
+        return database.groupDao.getByTitle(groupTitle)
     }
 
     fun getAllEvents(): LiveData<List<Event>> {

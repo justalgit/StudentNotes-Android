@@ -16,6 +16,9 @@ interface GroupDao {
     @Delete
     fun delete(group: Group)
 
+    @Query("select * from `group` where title = :groupTitle")
+    fun getByTitle(groupTitle: String): Group
+
     @Query("select * from `group` order by title")
     fun getAllGroups(): LiveData<List<Group>>
 }

@@ -9,7 +9,7 @@ import com.example.studentnotes.data.entities.*
 
 @Database(
     entities = [Event::class, User::class, Group::class, Request::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class StudentNotesDatabase : RoomDatabase() {
@@ -37,6 +37,7 @@ abstract class StudentNotesDatabase : RoomDatabase() {
                         "main_database"
                     )
                         .fallbackToDestructiveMigration()
+                        .allowMainThreadQueries()
                         .build()
                     INSTANCE = instance
                 }

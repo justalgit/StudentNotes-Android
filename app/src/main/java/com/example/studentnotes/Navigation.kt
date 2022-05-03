@@ -36,20 +36,15 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
-            route = Screen.MainPagerScreen.route + "/{login}",
-            arguments = listOf(
-                navArgument("login") {
-                    type = NavType.StringType
-                    defaultValue = "Anton"
-                    nullable = false
-                }
-            )
+            route = Screen.MainPagerScreen.route
         ) {
             MainPagerScreenBody(
                 navController = navController
             )
         }
+
         composable(
             route = Screen.GetAccessScreen.route
         ) {
@@ -57,6 +52,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.EventCreationScreen.route
         ) {
@@ -64,6 +60,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.EventSearchScreen.route
         ) {
@@ -71,6 +68,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.GroupCreationScreen.route
         ) {
@@ -78,6 +76,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.GroupSearchScreen.route
         ) {
@@ -85,6 +84,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.RequestSearchScreen.route
         ) {
@@ -92,6 +92,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.SettingsScreen.route
         ) {
@@ -99,6 +100,7 @@ fun Navigation() {
                 navController = navController
             )
         }
+
         composable(
             route = Screen.EventDetailsScreen.route + "/{event}",
             arguments = listOf(
@@ -113,9 +115,28 @@ fun Navigation() {
             val jsonAdapter = moshi.adapter(Event::class.java).lenient()
             EventDetailsScreenBody(
                 navController = navController,
-                event = jsonAdapter.fromJson(eventJson)
+                event = jsonAdapter.fromJson(eventJson)!!
             )
         }
+
+        composable(
+            route = Screen.EventEditingScreen.route + "/{event}",
+            arguments = listOf(
+                navArgument("event") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            val eventJson = entry.arguments?.getString("event")
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val jsonAdapter = moshi.adapter(Event::class.java).lenient()
+            EventEditingScreenBody(
+                navController = navController,
+                event = jsonAdapter.fromJson(eventJson)!!
+            )
+        }
+
         composable(
             route = Screen.GroupDetailsScreen.route + "/{group}",
             arguments = listOf(
@@ -130,7 +151,25 @@ fun Navigation() {
             val jsonAdapter = moshi.adapter(Group::class.java).lenient()
             GroupDetailsScreenBody(
                 navController = navController,
-                group = jsonAdapter.fromJson(groupJson)
+                group = jsonAdapter.fromJson(groupJson)!!
+            )
+        }
+
+        composable(
+            route = Screen.GroupEditingScreen.route + "/{group}",
+            arguments = listOf(
+                navArgument("group") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            val groupJson = entry.arguments?.getString("group")
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val jsonAdapter = moshi.adapter(Group::class.java).lenient()
+            GroupEditingScreenBody(
+                navController = navController,
+                group = jsonAdapter.fromJson(groupJson)!!
             )
         }
     }

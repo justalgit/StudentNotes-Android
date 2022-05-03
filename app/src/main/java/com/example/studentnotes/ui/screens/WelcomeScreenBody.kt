@@ -22,7 +22,7 @@ import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiPasswordField
 import com.example.studentnotes.ui.components.UiTextField
 import com.example.studentnotes.ui.theme.Blue200
-import com.example.studentnotes.ui.theme.Blue700
+import com.example.studentnotes.ui.theme.Blue500
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import kotlinx.coroutines.launch
@@ -54,7 +54,7 @@ fun WelcomeScreenBody(
         Text(
             text = stringResource(R.string.welcome_to_studentnotes),
             style = Typography.h5,
-            color = Blue700,
+            color = Blue500,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -80,7 +80,8 @@ fun WelcomeScreenBody(
         Spacer(modifier = Modifier.size(24.dp))
         UiBigButton(
             text = stringResource(R.string.sign_in),
-            isEnabled = login.isNotBlank() && password.isNotBlank()
+            //isEnabled = login.isNotBlank() && password.isNotBlank()
+            isEnabled = true
         ) {
             CURRENT_USER_PLACEHOLDER_ID = UUID.randomUUID().toString()
             coroutineScope.launch {
@@ -92,7 +93,7 @@ fun WelcomeScreenBody(
                     )
                 )
             }
-            navController.navigate(Screen.MainPagerScreen.withArgs(login))
+            navController.navigate(Screen.MainPagerScreen.route)
         }
         Spacer(modifier = Modifier.size(24.dp))
         Text(

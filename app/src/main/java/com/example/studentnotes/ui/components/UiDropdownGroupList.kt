@@ -16,19 +16,23 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 
 @Composable
-fun UiDropdownList(
+fun UiDropdownGroupList(
     label: String,
-    suggestions: List<String>
+    selectedOption: MutableState<String>,
+    suggestions: List<String>,
+    onValueChange: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(suggestions[0]) }
     var textFieldSize by remember { mutableStateOf(Size.Zero)}
     val icon = if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown
 
     Column {
         OutlinedTextField(
-            value = selectedText,
-            onValueChange = { selectedText = it },
+            value = selectedOption.value,
+            onValueChange = {
+                selectedOption.value = it
+                onValueChange()
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
@@ -58,7 +62,7 @@ fun UiDropdownList(
             suggestions.forEach { label ->
                 DropdownMenuItem(
                     onClick = {
-                        selectedText = label
+                        selectedOption.value = label
                         expanded = false
                     }
                 ) {

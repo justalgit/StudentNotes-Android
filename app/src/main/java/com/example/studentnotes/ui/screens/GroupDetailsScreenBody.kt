@@ -12,18 +12,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.Screen
 import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.entities.toJson
 import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
 import com.example.studentnotes.utils.cutOff
 
 @Composable
 fun GroupDetailsScreenBody(
     navController: NavController,
-    group: Group?
+    group: Group
 ) {
 
     val context = LocalContext.current
@@ -43,53 +46,56 @@ fun GroupDetailsScreenBody(
                 )
             },
             rightRowContent = {
-                Text(group!!.title.cutOff(HEADER_TITLE_LENGTH).uppercase())
+                Text(group.title.cutOff(HEADER_TITLE_LENGTH).uppercase())
             }
         )
-        if (group != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
-            ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
+        ) {
+            Text(
+                text = group.title,
+                style = Typography.h5,
+                color = Color.Black
+            )
+            Text(
+                text = context.getString(R.string.author, group.creatorId),
+                style = Typography.body2,
+                color = Color.Black
+            )
+            Text(
+                text = group.description ?: stringResource(R.string.no_description),
+                style = Typography.body1,
+                color = Color.Black
+            )
+            if (!group.isEditable && CURRENT_USER_PLACEHOLDER_ID != group.creatorId) {
                 Text(
-                    text = group.title,
-                    style = Typography.h5,
-                    color = Color.Black
-                )
-                Text(
-                    text = context.getString(R.string.author, group.creatorId),
-                    style = Typography.body2,
-                    color = Color.Black
-                )
-                Text(
-                    text = group?.description ?: stringResource(R.string.no_description),
+                    text = context.getString(R.string.creator_made_group_uneditable),
                     style = Typography.body1,
-                    color = Color.Black
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .padding(start = 24.dp, top = 24.dp, end = 24.dp)
+                        .fillMaxWidth()
                 )
-                if (!group.isEditable) {
-                    Text(
-                        text = context.getString(R.string.creator_made_group_uneditable),
-                        style = Typography.body1,
-                        textAlign = TextAlign.Center,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .padding(start = 24.dp, top = 24.dp, end = 24.dp)
-                            .fillMaxWidth()
+            }
+        }
+        if (!group.isPrivate || group.isPrivate && CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
+            UiBigButton(
+                text = stringResource(R.string.invite)
+            )
+        }
+        if (group.isEditable || !group.isEditable && CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
+            UiBigButton(
+                text = stringResource(R.string.edit),
+                onClick = {
+                    navController.navigate(
+                        Screen.GroupEditingScreen.withArgs(group.toJson())
                     )
                 }
-            }
-            if (!group.isPrivate) {
-                UiBigButton(
-                    text = stringResource(R.string.invite)
-                )
-            }
-            if (group.isEditable) {
-                UiBigButton(
-                    text = stringResource(R.string.edit)
-                )
-            }
+            )
         }
     }
 }

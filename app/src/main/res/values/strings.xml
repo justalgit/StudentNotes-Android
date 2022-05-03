@@ -46,4 +46,15 @@
     <string name="editable_group">Редактируемая группа</string>
     <string name="event_title">Название события</string>
     <string name="not_found">Ничего не найдено :(</string>
+    <string name="group_editing">Редактирование группы</string>
+    <string name="group_updated_successfully">Группа \"%s\" успешно обновлена</string>
+    <string name="group_deleted_successfully">Группа \"%s\" успешно удалена</string>
+    <string name="event_updated_successfully">Событие \"%s\" успешно обновлено</string>
+    <string name="event_deleted_successfully">Событие \"%s\" успешно удалено</string>
+    <string name="save_changes">Сохранить изменения</string>
+    <string name="delete">Удалить</string>
+    <string name="event_editing">Редактирование события</string>
+    <string name="you_dont_have_groups_and_events_yet">У вас еще нет групп, а следовательно - и записей! Начните со вкладки \"Группы\"</string>
+    <string name="you_dont_have_events_yet">В ваших группах еще нет записей! Добавьте одну из них, нажав на \"+\"</string>
+    <string name="you_dont_have_groups_yet">У вас еще нет групп! Создайте одну из них или вступите в существующую</string>
 </resources>

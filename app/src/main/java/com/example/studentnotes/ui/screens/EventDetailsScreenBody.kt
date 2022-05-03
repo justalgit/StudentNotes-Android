@@ -12,11 +12,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.Screen
 import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.toJson
 import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
 import com.example.studentnotes.utils.cutOff
 
@@ -76,7 +79,7 @@ fun EventDetailsScreenBody(
                     style = Typography.caption,
                     color = Color.Gray
                 )
-                if (!event.isEditable) {
+                if (!event.isEditable && CURRENT_USER_PLACEHOLDER_ID != event.authorId) {
                     Text(
                         text = context.getString(R.string.author_made_event_uneditable),
                         style = Typography.body1,
@@ -88,9 +91,14 @@ fun EventDetailsScreenBody(
                     )
                 }
             }
-            if (event.isEditable) {
+            if (event.isEditable || !event.isEditable && event.authorId == CURRENT_USER_PLACEHOLDER_ID) {
                 UiBigButton(
-                    text = stringResource(R.string.edit)
+                    text = stringResource(R.string.edit),
+                    onClick = {
+                        navController.navigate(
+                            Screen.EventEditingScreen.withArgs(event.toJson())
+                        )
+                    }
                 )
             }
         }

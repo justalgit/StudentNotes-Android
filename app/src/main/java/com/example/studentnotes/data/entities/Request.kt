@@ -19,6 +19,12 @@ import kotlinx.parcelize.Parcelize
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
+            entity = User::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("incoming_user_id"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
             entity = Group::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("group_id"),
@@ -29,6 +35,7 @@ import kotlinx.parcelize.Parcelize
 data class Request(
     @PrimaryKey var id: String,
     @ColumnInfo(name = "author_id") var authorId: String,
+    @ColumnInfo(name = "incoming_user_id") var incomingUserId: String,
     @ColumnInfo(name = "group_id") var groupId: String,
     @ColumnInfo(name = "request_date") var requestDate: Long,
     @ColumnInfo(name = "message") var message: String? = null

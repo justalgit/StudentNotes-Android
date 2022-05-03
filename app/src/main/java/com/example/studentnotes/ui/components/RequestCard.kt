@@ -79,10 +79,11 @@ fun RequestCardPreview() {
     RequestCard(
         request = Request(
             id = "123",
-            authorId = "Макар Павлов",
+            authorId = "Алексей Воробьев",
+            incomingUserId = "Макар Павлов",
             groupId = "М8О-203М-20",
             requestDate = 123L,
-            message = "Я передумал, пустите меня обратно..."
+            message = "Го к нам"
         )
     )
 }

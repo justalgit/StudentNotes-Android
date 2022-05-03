@@ -1,14 +1,16 @@
 package com.example.studentnotes.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.ui.components.UiHeader
@@ -30,7 +32,8 @@ fun EventsScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
-    val eventsList = databaseRepo.getAllEvents().value ?: emptyList()
+    val eventsList = databaseRepo.getAllEvents().observeAsState().value ?: emptyList()
+    val groupsList = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
 
     Column(
         modifier = Modifier
@@ -46,14 +49,18 @@ fun EventsScreenBody(
                 )
             },
             rightRowContent = {
-                UiIconButton(
-                    painter = painterResource(R.drawable.ic_plus_24),
-                    onClick = { navController.navigate(Screen.EventCreationScreen.route) }
-                )
-                UiIconButton(
-                    painter = painterResource(R.drawable.ic_search_24),
-                    onClick = { navController.navigate(Screen.EventSearchScreen.route) }
-                )
+                if (groupsList.isNotEmpty()) {
+                    UiIconButton(
+                        painter = painterResource(R.drawable.ic_plus_24),
+                        onClick = { navController.navigate(Screen.EventCreationScreen.route) }
+                    )
+                    UiIconButton(
+                        painter = painterResource(R.drawable.ic_search_24),
+                        onClick = { navController.navigate(Screen.EventSearchScreen.route) }
+                    )
+                } else {
+                    null
+                }
             }
         )
         EventsList(
@@ -64,5 +71,34 @@ fun EventsScreenBody(
                 )
             }
         )
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (groupsList.isNotEmpty()) {
+                if (eventsList.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.you_dont_have_events_yet),
+                        style = Typography.body1,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .padding(start = 24.dp, top = 24.dp, end = 24.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.you_dont_have_groups_and_events_yet),
+                    style = Typography.body1,
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray,
+                    modifier = Modifier
+                        .padding(start = 24.dp, top = 24.dp, end = 24.dp)
+                        .fillMaxWidth()
+                )
+            }
+        }
     }
 }

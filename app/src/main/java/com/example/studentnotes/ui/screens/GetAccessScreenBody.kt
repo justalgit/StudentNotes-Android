@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.ui.components.*
-import com.example.studentnotes.ui.theme.Blue700
+import com.example.studentnotes.ui.theme.Blue500
 import com.example.studentnotes.ui.theme.Typography
 
 @ExperimentalComposeUiApi
@@ -52,7 +52,7 @@ fun GetAccessScreenBody(
             Text(
                 text = stringResource(R.string.mai_getpass),
                 style = Typography.h5,
-                color = Blue700,
+                color = Blue500,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )

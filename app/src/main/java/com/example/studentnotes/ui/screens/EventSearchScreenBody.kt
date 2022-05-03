@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -35,7 +36,7 @@ fun EventSearchScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
-    val eventsList = databaseRepo.getAllEvents().value ?: emptyList()
+    val eventsList = databaseRepo.getAllEvents().observeAsState().value ?: emptyList()
 
     var eventTitle by rememberSaveable { mutableStateOf("") }
     var filteredEvents by rememberSaveable { mutableStateOf(eventsList) }
@@ -61,13 +62,21 @@ fun EventSearchScreenBody(
             value = eventTitle,
             onValueChange = {
                 eventTitle = it
-                filteredEvents = eventsList!!.filter {
+                filteredEvents = eventsList.filter {
                     it.title.contains(eventTitle, ignoreCase = true)
                 }
             },
             label = stringResource(R.string.event_title)
         )
-        if (filteredEvents!!.isEmpty()) {
+        EventsList(
+            events = if (eventTitle.isEmpty()) eventsList else filteredEvents,
+            onEventClick = { event ->
+                navController.navigate(
+                    Screen.EventDetailsScreen.withArgs(event.toJson())
+                )
+            }
+        )
+        if (filteredEvents.isNullOrEmpty() && eventTitle.isNotEmpty()) {
             Text(
                 text = context.getString(R.string.not_found),
                 style = Typography.body1,
@@ -76,15 +85,6 @@ fun EventSearchScreenBody(
                 modifier = Modifier
                     .padding(start = 24.dp, top = 24.dp, end = 24.dp)
                     .align(Alignment.CenterHorizontally)
-            )
-        } else {
-            EventsList(
-                events = filteredEvents!!,
-                onEventClick = { event ->
-                    navController.navigate(
-                        Screen.EventDetailsScreen.withArgs(event.toJson())
-                    )
-                }
             )
         }
     }
