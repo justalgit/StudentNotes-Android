@@ -3,7 +3,6 @@ package com.example.studentnotes.ui.screens
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -24,27 +24,23 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
-import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.entities.Request
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.Blue200
-import com.example.studentnotes.ui.theme.LightGreen
-import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import kotlinx.coroutines.launch
 import java.util.*
 
-@ExperimentalComposeUiApi
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun GroupCreationScreenBody(
+fun RequestCreationScreenBody(
     navController: NavController
 ) {
-
     val options = listOf(
-        stringResource(R.string.open_group),
-        stringResource(R.string.closed_group)
+        stringResource(R.string.request),
+        stringResource(R.string.invitation)
     )
     var selectedOption by remember {
         mutableStateOf(options[0])
@@ -52,20 +48,18 @@ fun GroupCreationScreenBody(
     val onSelectionChange = { text: String ->
         selectedOption = text
     }
-    val selectedOptionColor by animateColorAsState(
-        if (selectedOption == stringResource(R.string.open_group)) LightGreen else LightRed
-    )
 
-    var groupTitle by rememberSaveable { mutableStateOf("") }
-    var groupDescription by rememberSaveable { mutableStateOf("") }
-    var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
-    var isGroupEditable by rememberSaveable { mutableStateOf(true) }
+    var requestMessage by rememberSaveable { mutableStateOf("") }
+    var isMessageAbsent by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
     val coroutineScope = rememberCoroutineScope()
+
+    val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
+    var selectedGroupTitle = if (availableGroups.isEmpty()) "" else availableGroups[0].title
 
     Column(
         modifier = Modifier
@@ -76,7 +70,7 @@ fun GroupCreationScreenBody(
 
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
         ) {
             UiHeader(
                 leftContent = {
@@ -85,20 +79,12 @@ fun GroupCreationScreenBody(
                     )
                 },
                 rightRowContent = {
-                    Text(stringResource(R.string.group_creation).uppercase())
+                    Text(stringResource(R.string.request_creation).uppercase())
                 }
-            )
-            UiTextField(
-                value = groupTitle,
-                onValueChange = {
-                    groupTitle = it
-                },
-                label = stringResource(R.string.title)
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 options.forEach { text ->
                     Box(
@@ -109,7 +95,7 @@ fun GroupCreationScreenBody(
                             .padding(horizontal = 12.dp)
                             .clip(shape = RoundedCornerShape(size = 12.dp))
                             .clickable { onSelectionChange(text) }
-                            .background(if (text == selectedOption) selectedOptionColor else Color.LightGray),
+                            .background(if (text == selectedOption) Blue200 else Color.LightGray),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -130,76 +116,64 @@ fun GroupCreationScreenBody(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = { isDescriptionAbsent = !isDescriptionAbsent }
+                        onClick = { isMessageAbsent = !isMessageAbsent }
                     )
             ) {
                 Checkbox(
-                    checked = isDescriptionAbsent,
+                    checked = isMessageAbsent,
                     onCheckedChange = null
                 )
                 Text(
-                    text = stringResource(R.string.no_description),
+                    text = stringResource(R.string.no_message),
                     color = Color.Black
                 )
             }
-            AnimatedVisibility(!isDescriptionAbsent) {
+            AnimatedVisibility(!isMessageAbsent) {
                 UiTextArea(
-                    value = groupDescription,
+                    value = requestMessage,
                     onValueChange = {
-                        groupDescription = it
+                        requestMessage = it
                     },
                     label = stringResource(R.string.description)
                 )
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { isGroupEditable = !isGroupEditable }
-                    )
-            ) {
-                Checkbox(
-                    checked = isGroupEditable,
-                    onCheckedChange = null
-                )
-                Text(
-                    text = stringResource(R.string.editable_group),
-                    color = Color.Black
+            UiDropdownGroupList(
+                label = stringResource(R.string.group),
+                selectedOption = mutableStateOf(selectedGroupTitle),
+                suggestions = availableGroups.map { it.title }.distinct()
+            )
+            AnimatedVisibility(selectedOption == stringResource(R.string.request)) {
+                UiDropdownGroupList(
+                    label = stringResource(R.string.user),
+                    selectedOption = mutableStateOf(selectedGroupTitle),
+                    suggestions = availableGroups.map { it.title }.distinct()
                 )
             }
         }
 
         UiBigButton(
-            text = stringResource(R.string.create_group),
-            isEnabled = groupTitle.isNotBlank() && (isDescriptionAbsent || !isDescriptionAbsent && groupDescription.isNotBlank()),
+            text = stringResource(R.string.create_request),
+            isEnabled = isMessageAbsent || !isMessageAbsent && requestMessage.isNotBlank(),
             onClick = {
-                coroutineScope.launch {
-                    databaseRepo.insertGroup(
-                        Group(
-                            id = UUID.randomUUID().toString(),
-                            title = groupTitle,
-                            description = if (!isDescriptionAbsent) groupDescription else null,
-                            creatorId = CURRENT_USER_PLACEHOLDER_ID,
-                            lastModifiedDate = 12345L,
-                            lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID,
-                            isPrivate = selectedOption == context.getString(R.string.closed_group),
-                            isEditable = isGroupEditable
-                        )
-                    )
+                if (selectedOption == context.getString(R.string.invitation)) {
+                    Toast.makeText(
+                        context,
+                        context.getString(
+                            R.string.invitation_was_sent_to_user,
+                            "Пользователь"
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        context.getString(
+                            R.string.your_request_was_sent,
+                            selectedGroupTitle
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                Toast.makeText(
-                    context,
-                    context.getString(
-                        R.string.group_created_successfully,
-                        selectedOption,
-                        groupTitle
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
                 navController.popBackStack()
             }
         )

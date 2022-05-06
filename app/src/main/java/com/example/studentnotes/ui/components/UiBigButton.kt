@@ -28,6 +28,10 @@ fun UiBigButton(
             backgroundColor = color,
             contentColor = Color.White
         ),
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 2.dp
+        ),
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp),

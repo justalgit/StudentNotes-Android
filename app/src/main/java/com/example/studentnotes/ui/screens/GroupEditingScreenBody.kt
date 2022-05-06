@@ -100,40 +100,27 @@ fun GroupEditingScreenBody(
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
             ) {
                 options.forEach { text ->
                     Box(
                         modifier = Modifier
-                            .padding(
-                                all = 12.dp,
-                            ),
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .weight(1f)
+                            .padding(horizontal = 12.dp)
+                            .clip(shape = RoundedCornerShape(size = 12.dp))
+                            .clickable { onSelectionChange(text) }
+                            .background(if (text == selectedOption) selectedOptionColor else Color.LightGray),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = text,
                             style = Typography.body1,
                             color = Color.White,
                             modifier = Modifier
-                                .clip(
-                                    shape = RoundedCornerShape(
-                                        size = 12.dp,
-                                    ),
-                                )
-                                .clickable {
-                                    onSelectionChange(text)
-                                    isGroupModified = true
-                                }
-                                .background(
-                                    if (text == selectedOption) {
-                                        selectedOptionColor
-                                    } else {
-                                        Color.LightGray
-                                    }
-                                )
-                                .padding(
-                                    vertical = 12.dp,
-                                    horizontal = 16.dp,
-                                )
+                                .padding(vertical = 12.dp, horizontal = 16.dp)
                         )
                     }
                 }

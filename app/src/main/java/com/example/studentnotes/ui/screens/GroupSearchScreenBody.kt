@@ -67,7 +67,7 @@ fun GroupSearchScreenBody(
                     it.title.contains(groupTitle, ignoreCase = true)
                 }
             },
-            label = stringResource(R.string.event_title)
+            label = stringResource(R.string.group_title)
         )
         GroupsList(
             groups = if (groupTitle.isEmpty()) groupsList else filteredGroups,
@@ -77,7 +77,7 @@ fun GroupSearchScreenBody(
                 )
             }
         )
-        if (filteredGroups.isNullOrEmpty() && groupTitle.isNotEmpty()) {
+        if (filteredGroups.isNullOrEmpty() && groupTitle.isNotEmpty() || groupsList.isEmpty()) {
             Text(
                 text = context.getString(R.string.not_found),
                 style = Typography.body1,

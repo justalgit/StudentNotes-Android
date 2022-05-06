@@ -27,7 +27,6 @@
     <string name="settings">Настройки</string>
     <string name="password">Пароль</string>
     <string name="accept">Принять</string>
-    <string name="decline">Отклонить</string>
     <string name="no_message">Без сообщения</string>
     <string name="group_created_successfully">%s группа \"%s\" успешно создана</string>
     <string name="event_created_successfully">Событие \"%s\" успешно создано</string>
@@ -57,4 +56,19 @@
     <string name="you_dont_have_groups_and_events_yet">У вас еще нет групп, а следовательно - и записей! Начните со вкладки \"Группы\"</string>
     <string name="you_dont_have_events_yet">В ваших группах еще нет записей! Добавьте одну из них, нажав на \"+\"</string>
     <string name="you_dont_have_groups_yet">У вас еще нет групп! Создайте одну из них или вступите в существующую</string>
+    <string name="request_to_join">Запрос на вступление</string>
+    <string name="you_sent_request_to_join_group">Вы отправили запрос на вступление в группу \"%s\"</string>
+    <string name="you_invited_user_to_join_group">Пользователь %s приглашен вами в группу \"%s\"</string>
+    <string name="invitation">Приглашение</string>
+    <string name="you_dont_have_requests_yet">Здесь хранятся запросы на вступление в ваши группы, а также те, что вы создадите сами</string>
+    <string name="request_creation">Создание запроса</string>
+    <string name="incoming_request_accepted">Запрос на вступление успешно принят</string>
+    <string name="outcoming_request_deleted">Запрос успешно удален</string>
+    <string name="request">Запрос</string>
+    <string name="user">Пользователь</string>
+    <string name="your_request_was_sent">Ваш запрос на вступление в группу \"%s\" отправлен</string>
+    <string name="invitation_was_sent_to_user">%s скоро получит отправленное приглашение</string>
+    <string name="search_string">Поисковая строка</string>
+    <string name="group_title">Название группы</string>
+    <string name="create_request">Создать запрос</string>
 </resources>

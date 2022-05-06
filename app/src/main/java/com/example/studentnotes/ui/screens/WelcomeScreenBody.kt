@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -102,7 +103,9 @@ fun WelcomeScreenBody(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .clickable { navController.navigate(Screen.GetAccessScreen.route) }
+                .clickable {
+                    navController.navigate(Screen.GetAccessScreen.route)
+                }
         )
     }
 }

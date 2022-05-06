@@ -21,6 +21,11 @@ val Typography = Typography(
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp
     ),
+    h6 = TextStyle(
+        fontFamily = interFont,
+        fontWeight = FontWeight.Normal,
+        fontSize = 21.sp
+    ),
     body1 = TextStyle(
         fontFamily = interFont,
         fontWeight = FontWeight.Normal,

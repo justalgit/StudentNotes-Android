@@ -94,6 +94,14 @@ fun Navigation() {
         }
 
         composable(
+            route = Screen.RequestCreationScreen.route
+        ) {
+            RequestCreationScreenBody(
+                navController = navController
+            )
+        }
+
+        composable(
             route = Screen.SettingsScreen.route
         ) {
             SettingsScreenBody(
