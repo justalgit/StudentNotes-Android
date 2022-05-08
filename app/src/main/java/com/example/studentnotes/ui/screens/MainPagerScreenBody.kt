@@ -1,91 +1,71 @@
 package com.example.studentnotes.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import android.util.Log
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
-import com.example.studentnotes.ui.theme.Blue500
-import com.google.accompanist.pager.*
-import kotlinx.coroutines.launch
+import com.example.studentnotes.ui.components.UiTabItem
 
-@ExperimentalPagerApi
-@ExperimentalMaterialApi
 @Composable
 fun MainPagerScreenBody(
     navController: NavController
 ) {
-    val tabs = listOf(
-        TabItem(R.drawable.ic_events_24) { EventsScreenBody(navController) },
-        TabItem(R.drawable.ic_groups_24) { GroupsScreenBody(navController) },
-        TabItem(R.drawable.ic_requests_24) { RequestsScreenBody(navController) },
-        TabItem(R.drawable.ic_settings_24) { SettingsScreenBody(navController) }
+    val menus = listOf(
+        TabData(stringResource(R.string.events), painterResource(R.drawable.ic_events_24)),
+        TabData(stringResource(R.string.groups), painterResource(R.drawable.ic_groups_24)),
+        TabData(stringResource(R.string.requests), painterResource(R.drawable.ic_requests_24)),
+        TabData(stringResource(R.string.settings), painterResource(R.drawable.ic_settings_24))
     )
-    val pagerState = rememberPagerState(pageCount = tabs.size)
+    var selectedMenu by remember {
+        mutableStateOf(menus[0])
+    }
+
     Scaffold {
         Column {
             Box(
                 modifier = Modifier
                     .weight(1f)
             ) {
-                TabsContent(
-                    tabs = tabs,
-                    pagerState = pagerState
-                )
+                when(selectedMenu) {
+                    menus[0] -> EventsScreenBody(navController = navController)
+                    menus[1] -> GroupsScreenBody(navController = navController)
+                    menus[2] -> RequestsScreenBody(navController = navController)
+                    menus[3] -> SettingsScreenBody(navController = navController)
+                }
             }
-            Tabs(
-                tabs = tabs,
-                pagerState = pagerState
-            )
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 12.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                menus.forEach { menu ->
+                    UiTabItem(
+                        modifier = Modifier
+                            .weight(1f),
+                        textLabel = menu.textLabel,
+                        iconPainter = menu.painter,
+                        isSelected = menu == selectedMenu,
+                        onClick = {
+                            selectedMenu = menu
+                            Log.d("selected menu", menu.textLabel)
+                        }
+                    )
+                }
+            }
         }
     }
 }
 
-@ExperimentalPagerApi
-@Composable
-fun TabsContent(tabs: List<TabItem>, pagerState: PagerState) {
-    HorizontalPager(state = pagerState) { page ->
-        tabs[page].screen()
-    }
-}
-
-@ExperimentalPagerApi
-@ExperimentalMaterialApi
-@Composable
-fun Tabs(
-    tabs: List<TabItem>,
-    pagerState: PagerState,
-
-) {
-    val scope = rememberCoroutineScope()
-    TabRow(
-        selectedTabIndex = pagerState.currentPage,
-        backgroundColor = Blue500,
-        contentColor = Color.White,
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
-            )
-        }) {
-        tabs.forEachIndexed { index, tab ->
-            Tab(
-                icon = { Icon(painter = painterResource(id = tab.icon), contentDescription = null) },
-                selected = pagerState.currentPage == index,
-                onClick = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
-                },
-            )
-        }
-    }
-}
-
-typealias ComposableFun = @Composable () -> Unit
-
-data class TabItem(var icon: Int, var screen: ComposableFun)
+data class TabData(
+    var textLabel: String,
+    var painter: Painter
+)

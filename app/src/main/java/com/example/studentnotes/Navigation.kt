@@ -1,5 +1,7 @@
 package com.example.studentnotes
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
@@ -16,9 +18,9 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalComposeUiApi
 @OptIn(ExperimentalAnimationApi::class)
-@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @Composable
 fun Navigation() {

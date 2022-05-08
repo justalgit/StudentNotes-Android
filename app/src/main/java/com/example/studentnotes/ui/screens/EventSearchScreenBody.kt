@@ -1,6 +1,5 @@
 package com.example.studentnotes.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -76,7 +75,7 @@ fun EventSearchScreenBody(
                 )
             }
         )
-        if (filteredEvents.isNullOrEmpty() && eventTitle.isNotEmpty()) {
+        if (filteredEvents.isNullOrEmpty() && eventTitle.isNotEmpty() || eventsList.isEmpty()) {
             Text(
                 text = context.getString(R.string.not_found),
                 style = Typography.body1,

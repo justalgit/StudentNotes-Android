@@ -7,10 +7,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.example.studentnotes.ui.theme.StudentNotesTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
 
 @ExperimentalComposeUiApi
-@ExperimentalPagerApi
 @ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +20,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @ExperimentalComposeUiApi
-@ExperimentalPagerApi
 @ExperimentalMaterialApi
 @Composable
 fun StudentNotesApp() {

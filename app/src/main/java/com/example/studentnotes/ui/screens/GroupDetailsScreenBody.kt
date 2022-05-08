@@ -22,6 +22,7 @@ import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
 import com.example.studentnotes.utils.cutOff
+import com.example.studentnotes.utils.getFormattedDateFromTimestamp
 
 @Composable
 fun GroupDetailsScreenBody(
@@ -69,6 +70,15 @@ fun GroupDetailsScreenBody(
                 text = group.description ?: stringResource(R.string.no_description),
                 style = Typography.body1,
                 color = Color.Black
+            )
+            Text(
+                text = context.getString(
+                    R.string.last_modified_by,
+                    group.lastModifiedUserId,
+                    getFormattedDateFromTimestamp(group.lastModifiedDate)
+                ),
+                style = Typography.caption,
+                color = Color.Gray
             )
             if (!group.isEditable && CURRENT_USER_PLACEHOLDER_ID != group.creatorId) {
                 Text(

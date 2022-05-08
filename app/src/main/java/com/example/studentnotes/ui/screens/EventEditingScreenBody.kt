@@ -26,8 +26,13 @@ import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightRed
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
+import com.example.studentnotes.utils.*
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
@@ -41,6 +46,8 @@ fun EventEditingScreenBody(
     var eventDescription by rememberSaveable { mutableStateOf(event.description ?: "") }
     var isDescriptionAbsent by rememberSaveable { mutableStateOf(event.description == null) }
     var isEventEditable by rememberSaveable { mutableStateOf(event.isEditable) }
+    var eventDate by rememberSaveable { mutableStateOf(getLocalDateFromTimestamp(event.eventDate)) }
+    var eventTime by rememberSaveable { mutableStateOf(getLocalTimeFromTimestamp(event.eventDate)) }
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -49,8 +56,38 @@ fun EventEditingScreenBody(
     )
 
     val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
-    var selectedGroupTitle = if (availableGroups.isEmpty()) "" else availableGroups[0].title
+    var selectedGroupTitle = remember{
+        mutableStateOf(
+            if (availableGroups.isEmpty()) "" else availableGroups[0].title
+        )
+    }
     var isEventModified by rememberSaveable { mutableStateOf(false) }
+
+    val dateDialogState = rememberMaterialDialogState()
+    MaterialDialog(
+        dialogState = dateDialogState,
+        buttons = {
+            positiveButton(stringResource(R.string.ok))
+            negativeButton(stringResource(R.string.close))
+        }
+    ) {
+        datepicker { date ->
+            eventDate = date
+        }
+    }
+
+    val timeDialogState = rememberMaterialDialogState()
+    MaterialDialog(
+        dialogState = timeDialogState,
+        buttons = {
+            positiveButton(stringResource(R.string.ok))
+            negativeButton(stringResource(R.string.close))
+        }
+    ) {
+        timepicker { time ->
+            eventTime = time
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -115,12 +152,12 @@ fun EventEditingScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
-            UiDropdownGroupList(
+            UiDropdownList(
                 label = stringResource(R.string.group),
-                selectedOption = mutableStateOf(selectedGroupTitle),
+                selectedOption = selectedGroupTitle,
                 suggestions = availableGroups.map { it.title }.distinct(),
                 onValueChange = {
-                    event.groupId = databaseRepo.getGroupByTitle(selectedGroupTitle).id
+                    event.groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
                     isEventModified = true
                 }
             )
@@ -147,6 +184,41 @@ fun EventEditingScreenBody(
                     color = Color.Black
                 )
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                UiTextField(
+                    value = eventDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    label = stringResource(R.string.date),
+                    isEnabled = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                dateDialogState.show()
+                                isEventModified = true
+                            }
+                        )
+                )
+                UiTextField(
+                    value = eventTime.format(DateTimeFormatter.ISO_LOCAL_TIME),
+                    label = stringResource(R.string.time),
+                    isEnabled = false,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
+                                timeDialogState.show()
+                                isEventModified = true
+                            }
+                        )
+                )
+            }
         }
 
         UiBigButton(
@@ -159,10 +231,11 @@ fun EventEditingScreenBody(
                 with(event) {
                     title = eventTitle
                     description = if (isDescriptionAbsent) null else eventDescription
-                    groupId = databaseRepo.getGroupByTitle(selectedGroupTitle).id
+                    groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
                     isEditable = isEventEditable
                     lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID
-                    // TODO: lastModifiedDate and eventDate
+                    event.eventDate = getTimestampFromDateAndTime(eventDate, eventTime)
+                    lastModifiedDate = getCurrentTimestamp()
                 }
                 databaseRepo.updateEvent(event)
             }

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.R
+import com.example.studentnotes.utils.getFormattedDateFromTimestamp
 
 @Composable
 fun EventCard(
@@ -55,7 +56,7 @@ fun EventCard(
                     color = Color.Black
                 )
                 Text(
-                    text = event.eventDate.toString(),
+                    text = getFormattedDateFromTimestamp(event.eventDate),
                     style = Typography.body1,
                     color = Color.Black
                 )

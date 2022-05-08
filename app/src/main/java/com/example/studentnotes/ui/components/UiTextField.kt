@@ -24,7 +24,10 @@ fun UiTextField(
     value: String,
     label: String,
     onValueChange: (String) -> Unit = {},
-    isLastEditField: Boolean = false
+    isLastEditField: Boolean = false,
+    isReadOnly: Boolean = false,
+    isEnabled: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -38,9 +41,11 @@ fun UiTextField(
             focusedIndicatorColor = Orange200,
             backgroundColor = Color.White
         ),
+        enabled = isEnabled,
         label = { Text(label) },
         singleLine = true,
-        modifier = Modifier
+        readOnly = isReadOnly,
+        modifier = modifier
             .fillMaxWidth()
             .onPreviewKeyEvent {
             if (it.key == Key.Tab){

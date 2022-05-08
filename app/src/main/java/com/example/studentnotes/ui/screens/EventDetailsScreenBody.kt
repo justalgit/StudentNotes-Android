@@ -22,6 +22,7 @@ import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
 import com.example.studentnotes.utils.cutOff
+import com.example.studentnotes.utils.getFormattedDateFromTimestamp
 
 @Composable
 fun EventDetailsScreenBody(
@@ -61,7 +62,7 @@ fun EventDetailsScreenBody(
                     color = Color.Black
                 )
                 Text(
-                    text = event.eventDate.toString(),
+                    text = getFormattedDateFromTimestamp(event.eventDate),
                     style = Typography.body2,
                     color = Color.Black
                 )
@@ -73,8 +74,8 @@ fun EventDetailsScreenBody(
                 Text(
                     text = context.getString(
                         R.string.last_modified_by,
-                        event.authorId,
-                        event.lastModifiedDate.toString()
+                        event.lastModifiedUserId,
+                        getFormattedDateFromTimestamp(event.lastModifiedDate)
                     ),
                     style = Typography.caption,
                     color = Color.Gray

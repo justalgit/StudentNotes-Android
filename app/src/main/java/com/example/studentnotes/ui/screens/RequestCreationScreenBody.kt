@@ -24,14 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
-import com.example.studentnotes.data.entities.Request
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
-import kotlinx.coroutines.launch
-import java.util.*
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -59,7 +55,11 @@ fun RequestCreationScreenBody(
     val coroutineScope = rememberCoroutineScope()
 
     val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
-    var selectedGroupTitle = if (availableGroups.isEmpty()) "" else availableGroups[0].title
+    var selectedGroupTitle = remember {
+        mutableStateOf(
+            if (availableGroups.isEmpty()) "" else availableGroups[0].title
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -137,15 +137,15 @@ fun RequestCreationScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
-            UiDropdownGroupList(
+            UiDropdownList(
                 label = stringResource(R.string.group),
-                selectedOption = mutableStateOf(selectedGroupTitle),
+                selectedOption = selectedGroupTitle,
                 suggestions = availableGroups.map { it.title }.distinct()
             )
             AnimatedVisibility(selectedOption == stringResource(R.string.request)) {
-                UiDropdownGroupList(
+                UiDropdownList(
                     label = stringResource(R.string.user),
-                    selectedOption = mutableStateOf(selectedGroupTitle),
+                    selectedOption = selectedGroupTitle,
                     suggestions = availableGroups.map { it.title }.distinct()
                 )
             }
@@ -169,7 +169,7 @@ fun RequestCreationScreenBody(
                         context,
                         context.getString(
                             R.string.your_request_was_sent,
-                            selectedGroupTitle
+                            selectedGroupTitle.value
                         ),
                         Toast.LENGTH_SHORT
                     ).show()

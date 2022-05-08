@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 
 @Composable
-fun UiDropdownGroupList(
+fun UiDropdownList(
     label: String,
     selectedOption: MutableState<String>,
     suggestions: List<String>,
