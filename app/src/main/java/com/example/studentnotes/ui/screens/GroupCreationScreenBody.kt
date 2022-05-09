@@ -32,6 +32,7 @@ import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
+import com.example.studentnotes.utils.getCurrentTimestamp
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -184,7 +185,7 @@ fun GroupCreationScreenBody(
                             title = groupTitle,
                             description = if (!isDescriptionAbsent) groupDescription else null,
                             creatorId = CURRENT_USER_PLACEHOLDER_ID,
-                            lastModifiedDate = 12345L,
+                            lastModifiedDate = getCurrentTimestamp(),
                             lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID,
                             isPrivate = selectedOption == context.getString(R.string.closed_group),
                             isEditable = isGroupEditable

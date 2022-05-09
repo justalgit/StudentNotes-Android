@@ -14,7 +14,6 @@ import androidx.navigation.navArgument
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.ui.screens.*
-import com.google.accompanist.pager.ExperimentalPagerApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
@@ -23,13 +22,15 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 @OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @Composable
-fun Navigation() {
+fun Navigation(
+    entryScreen: Screen
+) {
 
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.WelcomeScreen.route
+        startDestination = entryScreen.route
     ) {
         composable(
             route = Screen.WelcomeScreen.route

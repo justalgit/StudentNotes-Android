@@ -75,4 +75,9 @@
     <string name="time">Время</string>
     <string name="ok">Ок</string>
     <string name="close">Закрыть</string>
+    <string name="logout_from_account">Выйти из аккаунта</string>
+    <string name="shared_prefs_filename">student_notes_shared_preferences</string>
+    <string name="log_in_using_getpass">Выполните вход с помощью логина и пароля MAI Getpass</string>
+    <string name="hello_user">Привет, %s %s!</string>
+    <string name="goodbye_user">Пока, %s %s!</string>
 </resources>
