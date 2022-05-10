@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -18,6 +19,7 @@ import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.User
 import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiPasswordField
 import com.example.studentnotes.ui.components.UiTextField
@@ -41,6 +43,7 @@ fun WelcomeScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
+    val serverRepo = ServerRepository()
     val coroutineScope = rememberCoroutineScope()
 
     var login by rememberSaveable { mutableStateOf("") }
@@ -96,6 +99,16 @@ fun WelcomeScreenBody(
             }
             CURRENT_USER_PLACEHOLDER_ID = UUID.randomUUID().toString()
             coroutineScope.launch {
+                val isLoggedIn = serverRepo.login(
+                    login,
+                    password
+                ).isLoggedIn
+                if (isLoggedIn) {
+                    Toast.makeText(context, context.getString(R.string.logged_in_successfully), Toast.LENGTH_SHORT).show()
+                    navController.navigate(Screen.MainPagerScreen.route)
+                } else {
+                    Toast.makeText(context, context.getString(R.string.invalid_login_or_password), Toast.LENGTH_SHORT).show()
+                }
                 databaseRepo.createInitUser(
                     User(
                         id = CURRENT_USER_PLACEHOLDER_ID,
@@ -104,7 +117,6 @@ fun WelcomeScreenBody(
                     )
                 )
             }
-            navController.navigate(Screen.MainPagerScreen.route)
         }
         Spacer(modifier = Modifier.size(24.dp))
         Text(
