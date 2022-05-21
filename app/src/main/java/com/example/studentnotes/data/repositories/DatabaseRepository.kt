@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 
 class DatabaseRepository(private val database: StudentNotesDatabase) {
 
-    suspend fun createInitUser(user: User) {
+    suspend fun createUser(user: User) {
         withContext(Dispatchers.IO) {
             database.userDao.insert(user)
         }

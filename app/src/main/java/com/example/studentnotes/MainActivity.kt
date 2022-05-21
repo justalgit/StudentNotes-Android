@@ -10,8 +10,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.studentnotes.ui.theme.StudentNotesTheme
-import com.example.studentnotes.utils.PREFERENCES_USER_NAME
-import com.example.studentnotes.utils.PREFERENCES_USER_SURNAME
+import com.example.studentnotes.utils.getLoggedInUserName
+import com.example.studentnotes.utils.getLoggedInUserSurname
 import com.example.studentnotes.utils.getSharedPreferences
 
 @ExperimentalComposeUiApi
@@ -31,8 +31,8 @@ class MainActivity : ComponentActivity() {
 fun StudentNotesApp() {
     val context = LocalContext.current
     val sharedPrefs = context.getSharedPreferences()
-    val userName = sharedPrefs?.getString(PREFERENCES_USER_NAME, null)
-    val userSurname = sharedPrefs?.getString(PREFERENCES_USER_SURNAME, null)
+    val userName = sharedPrefs?.getLoggedInUserName()
+    val userSurname = sharedPrefs?.getLoggedInUserSurname()
     lateinit var entryScreen: Screen
     if (userName == null || userSurname == null) {
         entryScreen = Screen.WelcomeScreen

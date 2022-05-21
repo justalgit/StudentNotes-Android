@@ -21,15 +21,19 @@ import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.PREFERENCES_USER_NAME
-import com.example.studentnotes.utils.PREFERENCES_USER_SURNAME
+import com.example.studentnotes.utils.getLoggedInUserName
+import com.example.studentnotes.utils.getLoggedInUserSurname
 import com.example.studentnotes.utils.getSharedPreferences
+import com.example.studentnotes.utils.logOut
 
 @Composable
 fun SettingsScreenBody(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val sharedPrefs = context.getSharedPreferences()
+    val userName = sharedPrefs?.getLoggedInUserName() ?: ""
+    val userSurname = sharedPrefs?.getLoggedInUserSurname() ?: ""
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,6 +48,14 @@ fun SettingsScreenBody(
                 )
             }
         )
+
+        Text(
+            text = "$userName $userSurname",
+            style = Typography.body1,
+            color = Color.Gray,
+            modifier = Modifier.padding(all = 12.dp)
+        )
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.Start),
@@ -55,13 +67,7 @@ fun SettingsScreenBody(
                     indication = rememberRipple(bounded = true),
                     onClick = {
                         val sharedPrefs = context.getSharedPreferences()
-                        sharedPrefs?.let {
-                            it
-                                .edit()
-                                .remove(PREFERENCES_USER_NAME)
-                                .remove(PREFERENCES_USER_SURNAME)
-                                .apply()
-                        }
+                        sharedPrefs?.logOut()
                         navController.navigate(Screen.WelcomeScreen.route) {
                             popUpTo(0)
                         }
@@ -74,6 +80,7 @@ fun SettingsScreenBody(
                 contentDescription = null,
                 tint = Color.Black
             )
+
             Text(
                 text = stringResource(R.string.logout_from_account),
                 color = Color.Black,

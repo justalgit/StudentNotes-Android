@@ -80,6 +80,8 @@
     <string name="log_in_using_getpass">Выполните вход с помощью логина и пароля MAI Getpass</string>
     <string name="hello_user">Привет, %s %s!</string>
     <string name="goodbye_user">Пока, %s %s!</string>
-    <string name="logged_in_successfully">Вход выполнен успешно</string>
     <string name="invalid_login_or_password">Неверный логин или пароль!</string>
+    <string name="loading">Загрузка...</string>
+    <string name="timeout_error">Время ожидания истекло! Проверьте подключение к сети</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 </resources>

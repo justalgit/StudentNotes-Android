@@ -4,5 +4,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class LoginResponseBody(
-    val isLoggedIn: Boolean
+    val id: String?,
+    val name: String?,
+    val surname: String?
 )
