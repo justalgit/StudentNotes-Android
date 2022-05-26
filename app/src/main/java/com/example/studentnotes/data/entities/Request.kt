@@ -1,14 +1,13 @@
 package com.example.studentnotes.data.entities
 
-import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 @Entity(
     tableName = "request",
     foreignKeys = arrayOf(
@@ -32,14 +31,15 @@ import kotlinx.parcelize.Parcelize
         )
     )
 )
+@JsonClass(generateAdapter = true)
 data class Request(
-    @PrimaryKey var id: String,
-    @ColumnInfo(name = "author_id") var authorId: String,
-    @ColumnInfo(name = "incoming_user_id") var incomingUserId: String,
-    @ColumnInfo(name = "group_id") var groupId: String,
-    @ColumnInfo(name = "request_date") var requestDate: Long,
-    @ColumnInfo(name = "message") var message: String? = null
-) : Parcelable
+    @ColumnInfo(name = "id") @Json(name = "id") @PrimaryKey var id: String,
+    @ColumnInfo(name = "author_id") @Json(name = "author_id") var authorId: String,
+    @ColumnInfo(name = "incoming_user_id") @Json(name = "incoming_user_id") var incomingUserId: String,
+    @ColumnInfo(name = "group_id") @Json(name = "group_id") var groupId: String,
+    @ColumnInfo(name = "request_date") @Json(name = "request_date") var requestDate: Long,
+    @ColumnInfo(name = "message") @Json(name = "message") var message: String? = null
+)
 
 
 fun Request.toJson(): String {

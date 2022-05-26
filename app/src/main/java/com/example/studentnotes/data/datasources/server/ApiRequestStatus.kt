@@ -4,6 +4,8 @@ enum class ApiRequestStatus {
     WAITING_TO_SEND,
     LOADING,
     EMPTY,
-    ERROR,
+    HTTP_ERROR,
+    TIMEOUT_ERROR,
+    UNKNOWN_ERROR,
     DONE
 }

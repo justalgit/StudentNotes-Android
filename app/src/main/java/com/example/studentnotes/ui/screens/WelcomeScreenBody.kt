@@ -27,7 +27,6 @@ import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import retrofit2.Retrofit
 import java.lang.Exception
 import java.net.SocketTimeoutException
 
@@ -97,7 +96,7 @@ fun WelcomeScreenBody(
                     text = stringResource(R.string.sign_in),
                     isEnabled = login.isNotBlank() && password.isNotBlank()
                 ) {
-                    val sharedPrefs = context.getSharedPreferences()
+                    val sharedPrefs = context.getUserSharedPreferences()
                     coroutineScope.launch {
                         try {
                             requestStatus = ApiRequestStatus.LOADING
@@ -130,21 +129,23 @@ fun WelcomeScreenBody(
                                         context,
                                         context.getString(R.string.invalid_login_or_password)
                                     )
+                                    requestStatus = ApiRequestStatus.HTTP_ERROR
                                 }
                                 is SocketTimeoutException -> {
                                     showToast(
                                         context,
                                         context.getString(R.string.timeout_error)
                                     )
+                                    requestStatus = ApiRequestStatus.TIMEOUT_ERROR
                                 }
                                 else -> {
                                     showToast(
                                         context,
                                         context.getString(R.string.unknown_error)
                                     )
+                                    requestStatus = ApiRequestStatus.UNKNOWN_ERROR
                                 }
                             }
-                            requestStatus = ApiRequestStatus.ERROR
                         }
                     }
                 }

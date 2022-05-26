@@ -12,7 +12,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.studentnotes.ui.theme.StudentNotesTheme
 import com.example.studentnotes.utils.getLoggedInUserName
 import com.example.studentnotes.utils.getLoggedInUserSurname
-import com.example.studentnotes.utils.getSharedPreferences
+import com.example.studentnotes.utils.getUserSharedPreferences
 
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
@@ -30,11 +30,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun StudentNotesApp() {
     val context = LocalContext.current
-    val sharedPrefs = context.getSharedPreferences()
+    val sharedPrefs = context.getUserSharedPreferences()
     val userName = sharedPrefs?.getLoggedInUserName()
     val userSurname = sharedPrefs?.getLoggedInUserSurname()
     lateinit var entryScreen: Screen
-    if (userName == null || userSurname == null) {
+    if (userName.isNullOrEmpty() || userSurname.isNullOrEmpty()) {
         entryScreen = Screen.WelcomeScreen
         Toast.makeText(
             context,

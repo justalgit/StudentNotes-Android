@@ -1,6 +1,5 @@
 package com.example.studentnotes.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -23,7 +22,7 @@ import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.getLoggedInUserName
 import com.example.studentnotes.utils.getLoggedInUserSurname
-import com.example.studentnotes.utils.getSharedPreferences
+import com.example.studentnotes.utils.getUserSharedPreferences
 import com.example.studentnotes.utils.logOut
 
 @Composable
@@ -31,7 +30,7 @@ fun SettingsScreenBody(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val sharedPrefs = context.getSharedPreferences()
+    val sharedPrefs = context.getUserSharedPreferences()
     val userName = sharedPrefs?.getLoggedInUserName() ?: ""
     val userSurname = sharedPrefs?.getLoggedInUserSurname() ?: ""
     Column(
@@ -66,7 +65,7 @@ fun SettingsScreenBody(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = true),
                     onClick = {
-                        val sharedPrefs = context.getSharedPreferences()
+                        val sharedPrefs = context.getUserSharedPreferences()
                         sharedPrefs?.logOut()
                         navController.navigate(Screen.WelcomeScreen.route) {
                             popUpTo(0)

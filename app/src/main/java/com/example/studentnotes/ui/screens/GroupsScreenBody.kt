@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,29 +16,78 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.entities.toJson
-import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.GroupCard
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
+import com.example.studentnotes.ui.components.UiProgressDialog
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+
+class GroupsScreenViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _userGroups = MutableLiveData<List<Group>>()
+    val userGroups: LiveData<List<Group>>
+        get() = _userGroups
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun getUserGroups(userId: String) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                _userGroups.value = serverRepo.getUserGroups(userId).groups ?: emptyList()
+
+                if (userGroups.value == null || userGroups.value?.isEmpty() == true)
+                    _requestStatus.value = ApiRequestStatus.EMPTY
+                else {
+                    _requestStatus.value = ApiRequestStatus.DONE
+                }
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                _userGroups.value = emptyList()
+            }
+        }
+    }
+}
 
 @Composable
 fun GroupsScreenBody(
-    navController: NavController
+    navController: NavController,
+    viewModel: GroupsScreenViewModel = viewModel()
 ) {
-
     val context = LocalContext.current
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
-    val groupsList = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
+    val sharedPrefs = context.getUserSharedPreferences()
+    val requestStatus by viewModel.requestStatus.observeAsState()
+    val groupsList by viewModel.userGroups.observeAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getUserGroups(sharedPrefs?.getLoggedInUserId() ?: "")
+    }
 
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +114,7 @@ fun GroupsScreenBody(
             }
         )
         GroupsList(
-            groups = groupsList,
+            groups = groupsList ?: emptyList(),
             onGroupClick = { group ->
                 navController.navigate(
                     Screen.GroupDetailsScreen.withArgs(group.toJson())
@@ -75,7 +126,7 @@ fun GroupsScreenBody(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (groupsList.isEmpty()) {
+            if (groupsList.isNullOrEmpty()) {
                 Text(
                     text = stringResource(R.string.you_dont_have_groups_yet),
                     style = Typography.body1,

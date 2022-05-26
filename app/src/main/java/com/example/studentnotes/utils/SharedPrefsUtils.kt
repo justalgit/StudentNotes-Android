@@ -9,7 +9,7 @@ private const val PREFERENCES_USER_ID = "PREFERENCES_USER_ID"
 private const val PREFERENCES_USER_NAME = "PREFERENCES_USER_NAME"
 private const val PREFERENCES_USER_SURNAME = "PREFERENCES_USER_SURNAME"
 
-fun Context.getSharedPreferences(): SharedPreferences? {
+fun Context.getUserSharedPreferences(): SharedPreferences? {
     return getSharedPreferences(
         getString(R.string.shared_prefs_filename),
         MODE_PRIVATE

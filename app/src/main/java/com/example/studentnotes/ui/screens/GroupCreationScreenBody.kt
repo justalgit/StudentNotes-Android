@@ -27,7 +27,6 @@ import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
-import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
