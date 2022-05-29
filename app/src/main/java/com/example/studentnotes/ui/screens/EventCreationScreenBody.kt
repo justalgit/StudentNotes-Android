@@ -52,6 +52,8 @@ fun EventCreationScreenBody(
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val sharedPrefs = context.getUserSharedPreferences()
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
@@ -213,9 +215,9 @@ fun EventCreationScreenBody(
                         title = eventTitle,
                         description = if (!isDescriptionAbsent) eventDescription else null,
                         eventDate = getTimestampFromDateAndTime(eventDate, eventTime),
-                        authorId = CURRENT_USER_PLACEHOLDER_ID,
+                        authorId = currentUserId,
                         lastModifiedDate = getCurrentTimestamp(),
-                        lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID,
+                        lastModifiedUserId = currentUserId,
                         groupId = groupId,
                         isEditable = isEventEditable
                     )

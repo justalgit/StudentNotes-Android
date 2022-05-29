@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.getLoggedInUserName
@@ -30,6 +32,9 @@ fun SettingsScreenBody(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
     val sharedPrefs = context.getUserSharedPreferences()
     val userName = sharedPrefs?.getLoggedInUserName() ?: ""
     val userSurname = sharedPrefs?.getLoggedInUserSurname() ?: ""
@@ -65,7 +70,7 @@ fun SettingsScreenBody(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(bounded = true),
                     onClick = {
-                        val sharedPrefs = context.getUserSharedPreferences()
+                        databaseRepo.clearData()
                         sharedPrefs?.logOut()
                         navController.navigate(Screen.WelcomeScreen.route) {
                             popUpTo(0)

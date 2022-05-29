@@ -19,10 +19,7 @@ import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
-import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
-import com.example.studentnotes.utils.cutOff
-import com.example.studentnotes.utils.getFormattedDateFromTimestamp
+import com.example.studentnotes.utils.*
 
 @Composable
 fun EventDetailsScreenBody(
@@ -31,6 +28,8 @@ fun EventDetailsScreenBody(
 ) {
 
     val context = LocalContext.current
+    val sharedPrefs = context.getUserSharedPreferences()
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
 
     Column(
         modifier = Modifier
@@ -80,7 +79,7 @@ fun EventDetailsScreenBody(
                     style = Typography.caption,
                     color = Color.Gray
                 )
-                if (!event.isEditable && CURRENT_USER_PLACEHOLDER_ID != event.authorId) {
+                if (!event.isEditable && currentUserId != event.authorId) {
                     Text(
                         text = context.getString(R.string.author_made_event_uneditable),
                         style = Typography.body1,
@@ -92,7 +91,7 @@ fun EventDetailsScreenBody(
                     )
                 }
             }
-            if (event.isEditable || !event.isEditable && event.authorId == CURRENT_USER_PLACEHOLDER_ID) {
+            if (event.isEditable || !event.isEditable && event.authorId == currentUserId) {
                 UiBigButton(
                     text = stringResource(R.string.edit),
                     onClick = {

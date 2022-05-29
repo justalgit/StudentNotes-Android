@@ -51,6 +51,8 @@ fun EventEditingScreenBody(
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val sharedPrefs = context?.getUserSharedPreferences()
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
@@ -233,7 +235,7 @@ fun EventEditingScreenBody(
                     description = if (isDescriptionAbsent) null else eventDescription
                     groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
                     isEditable = isEventEditable
-                    lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID
+                    lastModifiedUserId = currentUserId
                     event.eventDate = getTimestampFromDateAndTime(eventDate, eventTime)
                     lastModifiedDate = getCurrentTimestamp()
                 }
@@ -253,7 +255,7 @@ fun EventEditingScreenBody(
             )
         }
 
-        if (CURRENT_USER_PLACEHOLDER_ID == event.authorId) {
+        if (currentUserId == event.authorId) {
             UiBigButton(
                 text = stringResource(R.string.delete),
                 color = LightRed,

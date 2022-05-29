@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -21,30 +23,87 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
+import com.example.studentnotes.utils.getCurrentTimestamp
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+
+class GroupEditingViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun updateGroup(group: Group) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.updateGroup(group)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("updateGroup", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("updateGroup", "error: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteGroup(groupId: String) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.deleteGroup(groupId)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("deleteGroup", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("deleteGroup", "error: ${e.message}")
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun GroupEditingScreenBody(
     navController: NavController,
-    group: Group
+    group: Group,
+    viewModel: GroupEditingViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
+    val sharedPrefs = context.getUserSharedPreferences()
     val coroutineScope = rememberCoroutineScope()
+
+    val requestStatus by viewModel.requestStatus.observeAsState()
 
     val options = listOf(
         stringResource(R.string.open_group),
@@ -68,6 +127,9 @@ fun GroupEditingScreenBody(
     var isGroupEditable by rememberSaveable { mutableStateOf(group.isEditable) }
     var isGroupModified by rememberSaveable { mutableStateOf(false) }
 
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -158,7 +220,7 @@ fun GroupEditingScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
-            if (CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
+            if (sharedPrefs?.getLoggedInUserId() == group.creatorId) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -192,44 +254,19 @@ fun GroupEditingScreenBody(
                     && (isDescriptionAbsent || !isDescriptionAbsent && groupDescription.isNotBlank()),
             onClick = {
                 coroutineScope.launch {
-                    with(group) {
+                    group.apply {
                         title = groupTitle
                         description = if (!isDescriptionAbsent) groupDescription else null
-                        lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID
+                        lastModifiedUserId = sharedPrefs?.getLoggedInUserId() ?: ""
                         isPrivate = selectedOption == context.getString(R.string.closed_group)
+                        lastModifiedDate = getCurrentTimestamp()
                         isEditable = isGroupEditable
-                        // TODO: lastModifiedDate
                     }
-                    databaseRepo.updateGroup(group)
-                }
-                Toast.makeText(
-                    context,
-                    context.getString(
-                        R.string.group_updated_successfully,
-                        group.title
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
-                navController.popBackStack(
-                    Screen.MainPagerScreen.route,
-                    inclusive = false
-                )
-            }
-        )
-
-        if (CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
-            UiBigButton(
-                text = stringResource(R.string.delete),
-                color = LightRed,
-                isEnabled = true,
-                onClick = {
-                    coroutineScope.launch {
-                        databaseRepo.deleteGroup(group)
-                    }
+                    viewModel.updateGroup(group)
                     Toast.makeText(
                         context,
                         context.getString(
-                            R.string.group_deleted_successfully,
+                            R.string.group_updated_successfully,
                             group.title
                         ),
                         Toast.LENGTH_SHORT
@@ -238,6 +275,31 @@ fun GroupEditingScreenBody(
                         Screen.MainPagerScreen.route,
                         inclusive = false
                     )
+                }
+            }
+        )
+
+        if (sharedPrefs?.getLoggedInUserId() == group.creatorId) {
+            UiBigButton(
+                text = stringResource(R.string.delete),
+                color = LightRed,
+                isEnabled = true,
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.deleteGroup(group.id)
+                        Toast.makeText(
+                            context,
+                            context.getString(
+                                R.string.group_deleted_successfully,
+                                group.title
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        navController.popBackStack(
+                            Screen.MainPagerScreen.route,
+                            inclusive = false
+                        )
+                    }
                 }
             )
         }

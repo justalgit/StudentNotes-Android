@@ -3,13 +3,16 @@ package com.example.studentnotes.data.datasources.database.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.studentnotes.data.entities.Event
-import com.example.studentnotes.data.entities.Group
 
 @Dao
 interface EventDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(event: Event)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @JvmSuppressWildcards
+    fun insertList(objects: List<Event>)
 
     @Update
     fun update(event: Event)
@@ -18,5 +21,9 @@ interface EventDao {
     fun delete(event: Event)
 
     @Query("select * from event order by event_date")
-    fun getAllEvents(): LiveData<List<Event>>
+    fun getAll(): LiveData<List<Event>>
+
+    @Query("delete from event")
+    fun clear()
+
 }

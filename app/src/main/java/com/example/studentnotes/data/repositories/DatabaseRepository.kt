@@ -2,35 +2,67 @@ package com.example.studentnotes.data.repositories
 
 import androidx.lifecycle.LiveData
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
-import com.example.studentnotes.data.entities.Event
-import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.entities.Request
-import com.example.studentnotes.data.entities.User
+import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
+import com.example.studentnotes.data.entities.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class DatabaseRepository(private val database: StudentNotesDatabase) {
-
-    suspend fun createUser(user: User) {
-        withContext(Dispatchers.IO) {
-            database.userDao.insert(user)
-        }
-    }
 
     fun getGroupByTitle(groupTitle: String): Group {
         return database.groupDao.getByTitle(groupTitle)
     }
 
     fun getAllEvents(): LiveData<List<Event>> {
-        return database.eventDao.getAllEvents()
+        return database.eventDao.getAll()
     }
 
     fun getAllGroups(): LiveData<List<Group>> {
-        return database.groupDao.getAllGroups()
+        return database.groupDao.getAll()
     }
 
     fun getAllRequests(): LiveData<List<Request>> {
-        return database.requestDao.getAllRequests()
+        return database.requestDao.getAll()
+    }
+
+    fun insertInitialData(initialData: InitialDataResponse) {
+        with(initialData) {
+            insertUsersList(usersList)
+            insertGroupsList(groupsList)
+            insertUserGroupRelationsList(userGroupRelationsList)
+            insertEventsList(eventsList)
+            insertRequestsList(requestsList)
+        }
+    }
+
+    fun clearData() {
+        with(database) {
+            requestDao.clear()
+            eventDao.clear()
+            userGroupRelationDao.clear()
+            groupDao.clear()
+            userDao.clear()
+        }
+    }
+
+    fun insertUsersList(users: List<User>) {
+        database.userDao.insertList(users)
+    }
+
+    fun insertGroupsList(groups: List<Group>) {
+        database.groupDao.insertList(groups)
+    }
+
+    fun insertEventsList(events: List<Event>) {
+        database.eventDao.insertList(events)
+    }
+
+    fun insertRequestsList(requests: List<Request>) {
+        database.requestDao.insertList(requests)
+    }
+
+    fun insertUserGroupRelationsList(userGroupRelations: List<UserGroupRelation>) {
+        database.userGroupRelationDao.insertList(userGroupRelations)
     }
 
     suspend fun insertEvent(event: Event) {

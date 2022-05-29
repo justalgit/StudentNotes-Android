@@ -1,23 +1,92 @@
 package com.example.studentnotes.ui.screens
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
+import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
+import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
+import com.example.studentnotes.ui.components.UiProgressDialog
 import com.example.studentnotes.ui.components.UiTabItem
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+
+class MainPagerViewModelFactory(private val context: Context) :
+    ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T = MainPagerViewModel(context) as T
+}
+
+class MainPagerViewModel(context: Context) : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+    private val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+
+    private val _userInitialData = MutableLiveData<InitialDataResponse>()
+    val userInitialData: LiveData<InitialDataResponse>
+        get() = _userInitialData
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun getInitialData(userId: String) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                _userInitialData.value = serverRepo.getInitialData(userId)
+                databaseRepo.insertInitialData(_userInitialData.value!!)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("initialData", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("initialData", "error: ${e.message}")
+                _userInitialData.value?.apply {
+                    groupsList = emptyList()
+                    eventsList = emptyList()
+                    requestsList = emptyList()
+                    userGroupRelationsList = emptyList()
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun MainPagerScreenBody(
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val viewModel = MainPagerViewModel(context)
+    val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
+    viewModel.getInitialData(currentUserId)
+    val requestStatus by viewModel.requestStatus.observeAsState()
+    val initialData by viewModel.userInitialData.observeAsState()
+
     val menus = listOf(
         TabData(stringResource(R.string.events), painterResource(R.drawable.ic_events_24)),
         TabData(stringResource(R.string.groups), painterResource(R.drawable.ic_groups_24)),
@@ -34,11 +103,26 @@ fun MainPagerScreenBody(
                 modifier = Modifier
                     .weight(1f)
             ) {
+                if (requestStatus == ApiRequestStatus.LOADING) {
+                    UiProgressDialog()
+                }
                 when(selectedMenu) {
-                    menus[0] -> EventsScreenBody(navController = navController)
-                    menus[1] -> GroupsScreenBody(navController = navController)
-                    menus[2] -> RequestsScreenBody(navController = navController)
-                    menus[3] -> SettingsScreenBody(navController = navController)
+                    menus[0] -> EventsScreenBody(
+                        navController = navController,
+                        eventsList = initialData?.eventsList ?: emptyList(),
+                        groupsList = initialData?.groupsList ?: emptyList()
+                    )
+                    menus[1] -> GroupsScreenBody(
+                        navController = navController,
+                        groupsList = initialData?.groupsList ?: emptyList()
+                    )
+                    menus[2] -> RequestsScreenBody(
+                        navController = navController,
+                        requestsList = initialData?.requestsList ?: emptyList()
+                    )
+                    menus[3] -> SettingsScreenBody(
+                        navController = navController
+                    )
                 }
             }
             Row(
@@ -56,7 +140,6 @@ fun MainPagerScreenBody(
                         isSelected = menu == selectedMenu,
                         onClick = {
                             selectedMenu = menu
-                            Log.d("selected menu", menu.textLabel)
                         }
                     )
                 }

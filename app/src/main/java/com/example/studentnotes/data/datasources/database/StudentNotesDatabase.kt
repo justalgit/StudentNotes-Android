@@ -8,8 +8,8 @@ import com.example.studentnotes.data.datasources.database.dao.*
 import com.example.studentnotes.data.entities.*
 
 @Database(
-    entities = [Event::class, User::class, Group::class, Request::class],
-    version = 4,
+    entities = [Event::class, User::class, Group::class, Request::class, UserGroupRelation::class],
+    version = 5,
     exportSchema = false
 )
 abstract class StudentNotesDatabase : RoomDatabase() {
@@ -18,6 +18,7 @@ abstract class StudentNotesDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val groupDao: GroupDao
     abstract val requestDao: RequestDao
+    abstract val userGroupRelationDao: UserGroupRelationDao
 
     companion object {
 

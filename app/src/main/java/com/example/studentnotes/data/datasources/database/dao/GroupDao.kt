@@ -10,6 +10,10 @@ interface GroupDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(group: Group)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @JvmSuppressWildcards
+    fun insertList(objects: List<Group>)
+
     @Update
     fun update(group: Group)
 
@@ -20,5 +24,9 @@ interface GroupDao {
     fun getByTitle(groupTitle: String): Group
 
     @Query("select * from `group` order by title")
-    fun getAllGroups(): LiveData<List<Group>>
+    fun getAll(): LiveData<List<Group>>
+
+    @Query("delete from `group`")
+    fun clear()
+
 }

@@ -28,7 +28,7 @@ fun SharedPreferences.saveLoggedInUser(
     surname: String?
 ) {
     edit()
-        .putString(PREFERENCES_USER_ID, id)
+        .putString(PREFERENCES_USER_ID, id?.replace("-", ""))
         .putString(PREFERENCES_USER_NAME, name)
         .putString(PREFERENCES_USER_SURNAME, surname)
         .apply()

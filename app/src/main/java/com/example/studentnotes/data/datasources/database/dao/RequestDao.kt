@@ -10,6 +10,10 @@ interface RequestDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(request: Request)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @JvmSuppressWildcards
+    fun insertList(objects: List<Request>)
+
     @Update
     fun update(request: Request)
 
@@ -17,5 +21,9 @@ interface RequestDao {
     fun delete(request: Request)
 
     @Query("select * from request order by request_date")
-    fun getAllRequests(): LiveData<List<Request>>
+    fun getAll(): LiveData<List<Request>>
+
+    @Query("delete from request")
+    fun clear()
+
 }

@@ -3,11 +3,9 @@ package com.example.studentnotes.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -17,23 +15,16 @@ import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
-import com.example.studentnotes.data.entities.toJson
-import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.entities.*
 import com.example.studentnotes.ui.components.EventsList
 import com.example.studentnotes.ui.theme.Typography
 
 @Composable
 fun EventsScreenBody(
-    navController: NavController
+    navController: NavController,
+    eventsList: List<Event>,
+    groupsList: List<Group>
 ) {
-
-    val context = LocalContext.current
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
-    val eventsList = databaseRepo.getAllEvents().observeAsState().value ?: emptyList()
-    val groupsList = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
 
     Column(
         modifier = Modifier

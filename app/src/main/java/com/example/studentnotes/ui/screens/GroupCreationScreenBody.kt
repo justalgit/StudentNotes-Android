@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -21,25 +23,63 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
-import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.Screen
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightGreen
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
 import com.example.studentnotes.utils.getCurrentTimestamp
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
 import java.util.*
+
+class GroupCreationViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun createGroup(group: Group) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.createGroup(group)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("createGroup", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("createGroup", "error: ${e.message}")
+            }
+        }
+    }
+}
 
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun GroupCreationScreenBody(
-    navController: NavController
+    navController: NavController,
+    viewModel: GroupCreationViewModel = viewModel()
 ) {
 
     val options = listOf(
@@ -62,10 +102,13 @@ fun GroupCreationScreenBody(
     var isGroupEditable by rememberSaveable { mutableStateOf(true) }
 
     val context = LocalContext.current
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
+    val sharedPrefs = context.getUserSharedPreferences()
     val coroutineScope = rememberCoroutineScope()
+    val requestStatus by viewModel.requestStatus.observeAsState()
+
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
 
     Column(
         modifier = Modifier
@@ -178,30 +221,35 @@ fun GroupCreationScreenBody(
             isEnabled = groupTitle.isNotBlank() && (isDescriptionAbsent || !isDescriptionAbsent && groupDescription.isNotBlank()),
             onClick = {
                 coroutineScope.launch {
-                    databaseRepo.insertGroup(
+                    viewModel.createGroup(
                         Group(
                             id = UUID.randomUUID().toString(),
                             title = groupTitle,
                             description = if (!isDescriptionAbsent) groupDescription else null,
-                            creatorId = CURRENT_USER_PLACEHOLDER_ID,
+                            creatorId = sharedPrefs?.getLoggedInUserId() ?: "",
                             lastModifiedDate = getCurrentTimestamp(),
-                            lastModifiedUserId = CURRENT_USER_PLACEHOLDER_ID,
+                            lastModifiedUserId = sharedPrefs?.getLoggedInUserId() ?: "",
                             isPrivate = selectedOption == context.getString(R.string.closed_group),
                             isEditable = isGroupEditable
                         )
                     )
                 }
-                Toast.makeText(
-                    context,
-                    context.getString(
-                        R.string.group_created_successfully,
-                        selectedOption,
-                        groupTitle
-                    ),
-                    Toast.LENGTH_SHORT
-                ).show()
-                navController.popBackStack()
             }
+        )
+    }
+    if (requestStatus == ApiRequestStatus.DONE) {
+        Toast.makeText(
+            context,
+            context.getString(
+                R.string.group_created_successfully,
+                selectedOption,
+                groupTitle
+            ),
+            Toast.LENGTH_SHORT
+        ).show()
+        navController.popBackStack(
+            Screen.MainPagerScreen.route,
+            inclusive = false
         )
     }
 }

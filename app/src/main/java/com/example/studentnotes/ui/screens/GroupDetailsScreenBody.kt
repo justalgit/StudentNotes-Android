@@ -19,10 +19,7 @@ import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.theme.Typography
-import com.example.studentnotes.utils.CURRENT_USER_PLACEHOLDER_ID
-import com.example.studentnotes.utils.HEADER_TITLE_LENGTH
-import com.example.studentnotes.utils.cutOff
-import com.example.studentnotes.utils.getFormattedDateFromTimestamp
+import com.example.studentnotes.utils.*
 
 @Composable
 fun GroupDetailsScreenBody(
@@ -31,6 +28,7 @@ fun GroupDetailsScreenBody(
 ) {
 
     val context = LocalContext.current
+    val sharedPrefs = context.getUserSharedPreferences()
 
     Column(
         modifier = Modifier
@@ -80,7 +78,7 @@ fun GroupDetailsScreenBody(
                 style = Typography.caption,
                 color = Color.Gray
             )
-            if (!group.isEditable && CURRENT_USER_PLACEHOLDER_ID != group.creatorId) {
+            if (!group.isEditable && sharedPrefs?.getLoggedInUserId() != group.creatorId) {
                 Text(
                     text = context.getString(R.string.creator_made_group_uneditable),
                     style = Typography.body1,
@@ -92,12 +90,12 @@ fun GroupDetailsScreenBody(
                 )
             }
         }
-        if (!group.isPrivate || group.isPrivate && CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
+        if (!group.isPrivate || group.isPrivate && sharedPrefs?.getLoggedInUserId() == group.creatorId) {
             UiBigButton(
                 text = stringResource(R.string.invite)
             )
         }
-        if (group.isEditable || !group.isEditable && CURRENT_USER_PLACEHOLDER_ID == group.creatorId) {
+        if (group.isEditable || !group.isEditable && sharedPrefs?.getLoggedInUserId() == group.creatorId) {
             UiBigButton(
                 text = stringResource(R.string.edit),
                 onClick = {

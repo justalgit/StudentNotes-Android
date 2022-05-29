@@ -26,6 +26,8 @@ import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiTextField
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -33,10 +35,12 @@ fun RequestSearchScreenBody(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val sharedPrefs = context.getUserSharedPreferences()
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
 
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
     val requestsList = databaseRepo.getAllRequests().observeAsState().value ?: emptyList()
     var requestSearchString by rememberSaveable { mutableStateOf("") }
     var filteredRequests by rememberSaveable { mutableStateOf(requestsList) }
@@ -67,7 +71,8 @@ fun RequestSearchScreenBody(
             label = stringResource(R.string.search_string)
         )
         RequestsList(
-            requests = if (requestSearchString.isEmpty()) requestsList else filteredRequests
+            requests = if (requestSearchString.isEmpty()) requestsList else filteredRequests,
+            currentUserId = currentUserId
         )
         if (filteredRequests.isEmpty() && requestSearchString.isNotEmpty() || requestsList.isEmpty()) {
             Text(
