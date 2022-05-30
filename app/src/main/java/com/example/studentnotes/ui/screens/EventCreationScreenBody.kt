@@ -1,6 +1,7 @@
 package com.example.studentnotes.ui.screens
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -20,11 +21,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.utils.*
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -32,15 +41,46 @@ import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
 import java.time.format.DateTimeFormatter
 import java.util.*
+
+class EventCreationViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun createEvent(event: Event) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.createEvent(event)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("createEvent", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("createEvent", "error: ${e.message}")
+            }
+        }
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun EventCreationScreenBody(
-    navController: NavController
+    navController: NavController,
+    viewModel: EventCreationViewModel = viewModel()
 ) {
 
     var eventTitle by rememberSaveable { mutableStateOf("") }
@@ -57,6 +97,7 @@ fun EventCreationScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
+    val requestStatus by viewModel.requestStatus.observeAsState()
 
     val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
     var selectedGroupTitle = remember {
@@ -91,6 +132,9 @@ fun EventCreationScreenBody(
         }
     }
 
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -209,7 +253,7 @@ fun EventCreationScreenBody(
         ) {
             coroutineScope.launch {
                 val groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
-                databaseRepo.insertEvent(
+                viewModel.createEvent(
                     Event(
                         id = UUID.randomUUID().toString(),
                         title = eventTitle,
@@ -223,15 +267,19 @@ fun EventCreationScreenBody(
                     )
                 )
             }
-            Toast.makeText(
-                context,
-                context.getString(
-                    R.string.event_created_successfully,
-                    eventTitle
-                ),
-                Toast.LENGTH_SHORT
-            ).show()
-            navController.popBackStack()
         }
+    }
+    if (requestStatus == ApiRequestStatus.DONE) {
+        showToast(
+            context,
+            context.getString(
+                R.string.event_created_successfully,
+                eventTitle
+            )
+        )
+        navController.popBackStack(
+            Screen.MainPagerScreen.route,
+            inclusive = false
+        )
     }
 }

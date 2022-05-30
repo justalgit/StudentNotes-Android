@@ -13,6 +13,14 @@ class DatabaseRepository(private val database: StudentNotesDatabase) {
         return database.groupDao.getByTitle(groupTitle)
     }
 
+    fun getUserByNameAndSurname(name: String, surname: String): LiveData<User> {
+        return database.userDao.getByNameAndSurname(name, surname)
+    }
+
+    fun getAllUsers(): LiveData<List<User>> {
+        return database.userDao.getAll()
+    }
+
     fun getAllEvents(): LiveData<List<Event>> {
         return database.eventDao.getAll()
     }

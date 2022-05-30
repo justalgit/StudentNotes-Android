@@ -3,8 +3,10 @@ package com.example.studentnotes.data.datasources.server
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.datasources.server.json.LoginRequest
 import com.example.studentnotes.data.datasources.server.json.LoginResponse
+import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.entities.GroupsList
+import com.example.studentnotes.data.entities.Request
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -41,6 +43,9 @@ interface StudentNotesServerService {
         @Path("user_id") userId: String
     ): InitialDataResponse
 
+    @GET("groups")
+    suspend fun getAllGroups(): GroupsList
+
     @GET("groups/user/{user_id}")
     suspend fun getUserGroups(
         @Path("user_id") userId: String
@@ -60,6 +65,33 @@ interface StudentNotesServerService {
     @DELETE("groups/{group_id}")
     suspend fun deleteGroup(
         @Path("group_id") groupId: String
+    )
+
+    @POST("events")
+    suspend fun createEvent(
+        @Body event: Event
+    )
+
+    @PUT("events/{event_id}")
+    suspend fun updateEvent(
+        @Body event: Event,
+        @Path("event_id") eventId: String
+    )
+
+    @DELETE("events/{event_id}")
+    suspend fun deleteEvent(
+        @Path("event_id") groupId: String
+    )
+
+    @POST("requests")
+    suspend fun createRequest(
+        @Body request: Request
+    )
+
+    @DELETE("requests/{request_id}")
+    suspend fun deleteRequest(
+        @Path("request_id") groupId: String,
+        @Query("is_accept") isAccept: Boolean
     )
 
 }

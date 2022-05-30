@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,11 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Request
-import com.example.studentnotes.ui.components.RequestCard
-import com.example.studentnotes.ui.components.RequestType
-import com.example.studentnotes.ui.components.UiHeader
-import com.example.studentnotes.ui.components.UiIconButton
+import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.getLoggedInUserId
 import com.example.studentnotes.utils.getUserSharedPreferences
@@ -28,7 +28,8 @@ import com.example.studentnotes.utils.getUserSharedPreferences
 @Composable
 fun RequestsScreenBody(
     navController: NavController,
-    requestsList: List<Request>
+    requestsList: List<Request>,
+    viewModel: MainPagerViewModel
 ) {
 
     val context = LocalContext.current
@@ -41,7 +42,11 @@ fun RequestsScreenBody(
     val incomingRequestsList = requestsList.filter {
         !outcomingRequestsList.contains(it)
     }
+    val requestStatus by viewModel.requestStatus.observeAsState()
 
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,26 +74,28 @@ fun RequestsScreenBody(
         )
         if (outcomingRequestsList.isNotEmpty()) {
             Text(
-                text = stringResource(R.string.requests),
+                text = stringResource(R.string.outcoming_requests),
                 style = Typography.h6,
                 color = Color.Black,
                 modifier = Modifier.padding(vertical = 12.dp)
             )
             RequestsList(
                 requests = outcomingRequestsList,
-                currentUserId = currentUserId
+                currentUserId = currentUserId,
+                viewModel = viewModel
             )
         }
         if (incomingRequestsList.isNotEmpty()) {
             Text(
-                text = stringResource(R.string.requests),
+                text = stringResource(R.string.incoming_requests),
                 style = Typography.h6,
                 color = Color.Black,
                 modifier = Modifier.padding(vertical = 12.dp)
             )
             RequestsList(
                 requests = incomingRequestsList,
-                currentUserId = currentUserId
+                currentUserId = currentUserId,
+                viewModel = viewModel
             )
         }
         Column(
@@ -115,7 +122,8 @@ fun RequestsScreenBody(
 fun RequestsList(
     modifier: Modifier = Modifier,
     requests: List<Request>,
-    currentUserId: String
+    currentUserId: String,
+    viewModel: MainPagerViewModel? = null
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,8 +131,14 @@ fun RequestsList(
     ) {
         items(requests) { request ->
             RequestCard(
-                request,
-                getRequestType(request, currentUserId)
+                request = request,
+                requestType = getRequestType(request, currentUserId),
+                onAcceptButtonClick = {
+                    viewModel?.deleteRequest(request.id, true)
+                },
+                onDeclineButtonClick = {
+                    viewModel?.deleteRequest(request.id, false)
+                }
             )
         }
     }

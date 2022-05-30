@@ -40,6 +40,7 @@ class MainPagerViewModel(context: Context) : ViewModel() {
     private val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
+    private val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
 
     private val _userInitialData = MutableLiveData<InitialDataResponse>()
     val userInitialData: LiveData<InitialDataResponse>
@@ -48,6 +49,10 @@ class MainPagerViewModel(context: Context) : ViewModel() {
     private val _requestStatus = MutableLiveData<ApiRequestStatus>()
     val requestStatus: LiveData<ApiRequestStatus>
         get() = _requestStatus
+
+    init {
+        getInitialData(currentUserId)
+    }
 
     fun getInitialData(userId: String) {
         viewModelScope.launch {
@@ -74,6 +79,26 @@ class MainPagerViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
+    fun deleteRequest(requestId: String, isAccept: Boolean) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.deleteRequest(requestId, isAccept)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("deleteRequest", "success, is_accept = $isAccept")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("deleteRequest", "error: ${e.message}")
+            }
+        }
+    }
+
 }
 
 @Composable
@@ -82,8 +107,6 @@ fun MainPagerScreenBody(
 ) {
     val context = LocalContext.current
     val viewModel = MainPagerViewModel(context)
-    val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
-    viewModel.getInitialData(currentUserId)
     val requestStatus by viewModel.requestStatus.observeAsState()
     val initialData by viewModel.userInitialData.observeAsState()
 
@@ -118,7 +141,8 @@ fun MainPagerScreenBody(
                     )
                     menus[2] -> RequestsScreenBody(
                         navController = navController,
-                        requestsList = initialData?.requestsList ?: emptyList()
+                        requestsList = initialData?.requestsList ?: emptyList(),
+                        viewModel = viewModel
                     )
                     menus[3] -> SettingsScreenBody(
                         navController = navController

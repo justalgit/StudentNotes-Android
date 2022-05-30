@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -18,12 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightRed
 import com.example.studentnotes.utils.*
@@ -32,14 +41,64 @@ import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
 import java.time.format.DateTimeFormatter
+
+class EventEditingViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun updateEvent(event: Event) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.updateEvent(event)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("updateEvent", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("updateEvent", "error: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteEvent(eventId: String) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.deleteEvent(eventId)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("deleteEvent", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("deleteEvent", "error: ${e.message}")
+            }
+        }
+    }
+}
 
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
 @Composable
 fun EventEditingScreenBody(
     navController: NavController,
-    event: Event
+    event: Event,
+    viewModel: EventEditingViewModel = viewModel()
 ) {
 
     var eventTitle by rememberSaveable { mutableStateOf(event.title) }
@@ -53,16 +112,8 @@ fun EventEditingScreenBody(
     val context = LocalContext.current
     val sharedPrefs = context?.getUserSharedPreferences()
     val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
+    val requestStatus by viewModel.requestStatus.observeAsState()
 
-    val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
-    var selectedGroupTitle = remember{
-        mutableStateOf(
-            if (availableGroups.isEmpty()) "" else availableGroups[0].title
-        )
-    }
     var isEventModified by rememberSaveable { mutableStateOf(false) }
 
     val dateDialogState = rememberMaterialDialogState()
@@ -91,6 +142,9 @@ fun EventEditingScreenBody(
         }
     }
 
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -154,15 +208,6 @@ fun EventEditingScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
-            UiDropdownList(
-                label = stringResource(R.string.group),
-                selectedOption = selectedGroupTitle,
-                suggestions = availableGroups.map { it.title }.distinct(),
-                onValueChange = {
-                    event.groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
-                    isEventModified = true
-                }
-            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -233,22 +278,20 @@ fun EventEditingScreenBody(
                 with(event) {
                     title = eventTitle
                     description = if (isDescriptionAbsent) null else eventDescription
-                    groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id
                     isEditable = isEventEditable
                     lastModifiedUserId = currentUserId
                     event.eventDate = getTimestampFromDateAndTime(eventDate, eventTime)
                     lastModifiedDate = getCurrentTimestamp()
                 }
-                databaseRepo.updateEvent(event)
+                viewModel.updateEvent(event)
             }
-            Toast.makeText(
+            showToast(
                 context,
                 context.getString(
                     R.string.event_updated_successfully,
                     event.title
-                ),
-                Toast.LENGTH_SHORT
-            ).show()
+                )
+            )
             navController.popBackStack(
                 Screen.MainPagerScreen.route,
                 inclusive = false
@@ -262,16 +305,15 @@ fun EventEditingScreenBody(
                 isEnabled = true,
                 onClick = {
                     coroutineScope.launch {
-                        databaseRepo.deleteEvent(event)
+                        viewModel.deleteEvent(event.id)
                     }
-                    Toast.makeText(
+                    showToast(
                         context,
                         context.getString(
                             R.string.event_deleted_successfully,
                             event.title
-                        ),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        )
+                    )
                     navController.popBackStack(
                         Screen.MainPagerScreen.route,
                         inclusive = false

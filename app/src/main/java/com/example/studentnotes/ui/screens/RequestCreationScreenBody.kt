@@ -1,5 +1,6 @@
 package com.example.studentnotes.ui.screens
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -21,18 +22,65 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
+import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.datasources.server.ApiRequestStatus
+import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.GroupsList
+import com.example.studentnotes.data.entities.Request
 import com.example.studentnotes.data.repositories.DatabaseRepository
+import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.Typography
+import com.example.studentnotes.utils.getCurrentTimestamp
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
+import java.util.*
+
+class RequestCreationViewModel : ViewModel() {
+
+    private val serverRepo = ServerRepository()
+
+    private val _requestStatus = MutableLiveData<ApiRequestStatus>()
+    val requestStatus: LiveData<ApiRequestStatus>
+        get() = _requestStatus
+
+    fun createRequest(request: Request) {
+        viewModelScope.launch {
+            try {
+                _requestStatus.value = ApiRequestStatus.LOADING
+                serverRepo.createRequest(request)
+                _requestStatus.value = ApiRequestStatus.DONE
+                Log.d("createRequest", "success")
+            }
+            catch (e: Exception) {
+                _requestStatus.value = when (e) {
+                    is HttpException -> ApiRequestStatus.HTTP_ERROR
+                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                    else -> ApiRequestStatus.UNKNOWN_ERROR
+                }
+                Log.d("createRequest", "error: ${e.message}")
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RequestCreationScreenBody(
-    navController: NavController
+    navController: NavController,
+    viewModel: RequestCreationViewModel = viewModel()
 ) {
     val options = listOf(
         stringResource(R.string.request),
@@ -49,10 +97,10 @@ fun RequestCreationScreenBody(
     var isMessageAbsent by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
-    val coroutineScope = rememberCoroutineScope()
 
     val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
     var selectedGroupTitle = remember {
@@ -61,6 +109,18 @@ fun RequestCreationScreenBody(
         )
     }
 
+    val availableUsers = databaseRepo.getAllUsers().observeAsState().value ?: emptyList()
+    var selectedUser = remember {
+        mutableStateOf(
+            if (availableUsers.isEmpty()) "" else "${availableUsers[0].name} ${availableUsers[0].surname}"
+        )
+    }
+
+    val requestStatus by viewModel.requestStatus.observeAsState()
+
+    if (requestStatus == ApiRequestStatus.LOADING) {
+        UiProgressDialog()
+    }
     Column(
         modifier = Modifier
             .wrapContentHeight()
@@ -142,11 +202,11 @@ fun RequestCreationScreenBody(
                 selectedOption = selectedGroupTitle,
                 suggestions = availableGroups.map { it.title }.distinct()
             )
-            AnimatedVisibility(selectedOption == stringResource(R.string.request)) {
+            AnimatedVisibility(selectedOption == stringResource(R.string.invitation)) {
                 UiDropdownList(
                     label = stringResource(R.string.user),
-                    selectedOption = selectedGroupTitle,
-                    suggestions = availableGroups.map { it.title }.distinct()
+                    selectedOption = selectedUser,
+                    suggestions = availableUsers.map { "${it.name} ${it.surname}" }.distinct()
                 )
             }
         }
@@ -155,12 +215,31 @@ fun RequestCreationScreenBody(
             text = stringResource(R.string.create_request),
             isEnabled = isMessageAbsent || !isMessageAbsent && requestMessage.isNotBlank(),
             onClick = {
+                val nameAndSurname = selectedUser.value.split("\\s".toRegex()).toTypedArray()
+                // TODO: пофиксить запрос на приглашение
+                viewModel.createRequest(
+                    Request(
+                        id = UUID.randomUUID().toString(),
+                        authorId = currentUserId,
+                        incomingUserId = if (selectedOption == context.getString(R.string.invitation)) {
+                            databaseRepo.getUserByNameAndSurname(
+                                nameAndSurname[0],
+                                nameAndSurname[1]
+                            ).value?.id ?: ""
+                        } else {
+                            currentUserId
+                        },
+                        groupId = databaseRepo.getGroupByTitle(selectedGroupTitle.value).id,
+                        requestDate = getCurrentTimestamp(),
+                        message = if (requestMessage.isNotBlank()) requestMessage else null
+                    )
+                )
                 if (selectedOption == context.getString(R.string.invitation)) {
                     Toast.makeText(
                         context,
                         context.getString(
                             R.string.invitation_was_sent_to_user,
-                            "Пользователь"
+                            selectedUser.value
                         ),
                         Toast.LENGTH_SHORT
                     ).show()
@@ -174,7 +253,10 @@ fun RequestCreationScreenBody(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                navController.popBackStack()
+                navController.popBackStack(
+                    Screen.MainPagerScreen.route,
+                    inclusive = false
+                )
             }
         )
     }

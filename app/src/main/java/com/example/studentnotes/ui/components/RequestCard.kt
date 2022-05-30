@@ -1,12 +1,10 @@
 package com.example.studentnotes.ui.components
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,11 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentnotes.R
-import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.entities.Request
-import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.theme.*
-import kotlinx.coroutines.launch
 
 enum class RequestType {
     OUTCOMING_REQUEST,
@@ -30,14 +25,12 @@ enum class RequestType {
 @Composable
 fun RequestCard(
     request: Request,
-    requestType: RequestType
+    requestType: RequestType,
+    onAcceptButtonClick: () -> Unit = {},
+    onDeclineButtonClick: () -> Unit = {}
 ) {
 
     val context = LocalContext.current
-    val databaseRepo = DatabaseRepository(
-        database = StudentNotesDatabase.getInstance(context.applicationContext)
-    )
-    val coroutineScope = rememberCoroutineScope()
 
     Card(
         backgroundColor = Color.White,
@@ -91,33 +84,14 @@ fun RequestCard(
                         modifier = Modifier
                             .weight(1f),
                         isAcceptButton = false,
-                        onClick = {
-                            coroutineScope.launch {
-                                databaseRepo.deleteRequest(request)
-                            }
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.outcoming_request_deleted),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        onClick = onDeclineButtonClick
                     )
                     if (requestType == RequestType.INCOMING_REQUEST) {
                         UiChoiceButton(
                             modifier = Modifier
                                 .weight(1f),
                             isAcceptButton = true,
-                            onClick = {
-                                coroutineScope.launch {
-                                    // TODO: принять в группу перед удалением
-                                    databaseRepo.deleteRequest(request)
-                                }
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.incoming_request_accepted),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                            onClick = onAcceptButtonClick
                         )
                     }
                 }

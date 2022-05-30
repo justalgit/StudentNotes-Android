@@ -84,4 +84,6 @@
     <string name="loading">Загрузка...</string>
     <string name="timeout_error">Время ожидания истекло! Проверьте подключение к сети</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="incoming_requests">Входящие запросы</string>
+    <string name="outcoming_requests">Исходящие запросы</string>
 </resources>
