@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,8 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.datasources.server.ApiRequestStatus
-import com.example.studentnotes.data.entities.Request
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.entities.*
+import com.example.studentnotes.data.entities.toJson
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.getLoggedInUserId
@@ -28,13 +29,18 @@ import com.example.studentnotes.utils.getUserSharedPreferences
 @Composable
 fun RequestsScreenBody(
     navController: NavController,
-    requestsList: List<Request>,
-    viewModel: MainPagerViewModel
+    requestsList: List<Request>
 ) {
 
     val context = LocalContext.current
     val sharedPrefs = context.getUserSharedPreferences()
     val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+
+    val allUsers = databaseRepo.getAllUsers().observeAsState().value ?: emptyList()
+    val allGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
 
     val outcomingRequestsList = requestsList.filter {
         it.authorId == currentUserId
@@ -42,11 +48,7 @@ fun RequestsScreenBody(
     val incomingRequestsList = requestsList.filter {
         !outcomingRequestsList.contains(it)
     }
-    val requestStatus by viewModel.requestStatus.observeAsState()
 
-    if (requestStatus == ApiRequestStatus.LOADING) {
-        UiProgressDialog()
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,10 +68,6 @@ fun RequestsScreenBody(
                     painter = painterResource(R.drawable.ic_plus_24),
                     onClick = { navController.navigate(Screen.RequestCreationScreen.route) }
                 )
-                UiIconButton(
-                    painter = painterResource(R.drawable.ic_search_24),
-                    onClick = { navController.navigate(Screen.RequestSearchScreen.route) }
-                )
             }
         )
         if (outcomingRequestsList.isNotEmpty()) {
@@ -82,7 +80,13 @@ fun RequestsScreenBody(
             RequestsList(
                 requests = outcomingRequestsList,
                 currentUserId = currentUserId,
-                viewModel = viewModel
+                onRequestClick = { request ->
+                    navController.navigate(
+                        Screen.RequestDetailsScreen.withArgs(request.toJson())
+                    )
+                },
+                users = allUsers,
+                groups = allGroups
             )
         }
         if (incomingRequestsList.isNotEmpty()) {
@@ -95,7 +99,13 @@ fun RequestsScreenBody(
             RequestsList(
                 requests = incomingRequestsList,
                 currentUserId = currentUserId,
-                viewModel = viewModel
+                onRequestClick = { request ->
+                    navController.navigate(
+                        Screen.RequestDetailsScreen.withArgs(request.toJson())
+                    )
+                },
+                users = allUsers,
+                groups = allGroups
             )
         }
         Column(
@@ -123,7 +133,9 @@ fun RequestsList(
     modifier: Modifier = Modifier,
     requests: List<Request>,
     currentUserId: String,
-    viewModel: MainPagerViewModel? = null
+    onRequestClick: (Request) -> Unit,
+    users: List<User>,
+    groups: List<Group>
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -132,24 +144,15 @@ fun RequestsList(
         items(requests) { request ->
             RequestCard(
                 request = request,
-                requestType = getRequestType(request, currentUserId),
-                onAcceptButtonClick = {
-                    viewModel?.deleteRequest(request.id, true)
-                },
-                onDeclineButtonClick = {
-                    viewModel?.deleteRequest(request.id, false)
-                }
+                requestType = request.requestType(currentUserId),
+                onRequestClick = { onRequestClick(request) },
+                author = users.find { it.id == request.authorId }?.stringifiedName()
+                    ?: "...",
+                group = groups.find { it.id == request.groupId }?.title
+                    ?: "...",
+                incomingUser = users.find { it.id == request.incomingUserId }?.stringifiedName()
+                    ?: "..."
             )
         }
     }
 }
-
-fun getRequestType(
-    request: Request,
-    currentUserId: String
-) = if (request.authorId != currentUserId)
-        RequestType.INCOMING_REQUEST
-    else if (request.authorId == currentUserId && request.incomingUserId == currentUserId)
-        RequestType.OUTCOMING_REQUEST
-    else
-        RequestType.INVITATION

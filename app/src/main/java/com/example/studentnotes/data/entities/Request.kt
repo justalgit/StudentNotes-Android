@@ -1,14 +1,23 @@
 package com.example.studentnotes.data.entities
 
+import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.example.studentnotes.R
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.utils.replaceDashes
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+
+enum class RequestType {
+    OUTCOMING_REQUEST,
+    INCOMING_REQUEST,
+    INVITATION
+}
 
 @JsonClass(generateAdapter = true)
 data class RequestsList(
@@ -62,6 +71,46 @@ data class Request(
     }
 }
 
+fun Request.requestType(currentUserId: String): RequestType {
+    return if (authorId != currentUserId)
+        RequestType.INCOMING_REQUEST
+    else if (authorId == currentUserId && incomingUserId == currentUserId)
+        RequestType.OUTCOMING_REQUEST
+    else
+        RequestType.INVITATION
+}
+
+fun Request.requestTypeStringValue(context: Context, currentUserId: String): String {
+    val requestType = requestType(currentUserId)
+    return when (requestType) {
+        RequestType.INCOMING_REQUEST -> context.getString(R.string.incoming_request)
+        RequestType.OUTCOMING_REQUEST -> context.getString(R.string.outcoming_request)
+        RequestType.INVITATION -> context.getString(R.string.invitation)
+    }
+}
+
+fun Request.RequestTypeTextMessage(
+    currentUserId: String,
+    context: Context,
+    databaseRepo: DatabaseRepository
+): String {
+    return when (this.requestType(currentUserId)) {
+        RequestType.INCOMING_REQUEST -> context.getString(
+            R.string.user_wants_to_join_group,
+            authorId,
+            groupId
+        )
+        RequestType.OUTCOMING_REQUEST -> context.getString(
+            R.string.you_sent_request_to_join_group,
+            groupId
+        )
+        RequestType.INVITATION -> context.getString(
+            R.string.you_invited_user_to_join_group,
+            incomingUserId,
+            groupId
+        )
+    }
+}
 
 fun Request.toJson(): String {
     val moshi = Moshi.Builder().build()

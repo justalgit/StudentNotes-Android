@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.entities.Request
 import com.example.studentnotes.ui.screens.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -84,14 +85,6 @@ fun Navigation(
             route = Screen.GroupSearchScreen.route
         ) {
             GroupSearchScreenBody(
-                navController = navController
-            )
-        }
-
-        composable(
-            route = Screen.RequestSearchScreen.route
-        ) {
-            RequestSearchScreenBody(
                 navController = navController
             )
         }
@@ -181,6 +174,24 @@ fun Navigation(
             GroupEditingScreenBody(
                 navController = navController,
                 group = jsonAdapter.fromJson(groupJson)!!
+            )
+        }
+
+        composable(
+            route = Screen.RequestDetailsScreen.route + "/{request}",
+            arguments = listOf(
+                navArgument("request") {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { entry ->
+            val requestJson = entry.arguments?.getString("request")
+            val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            val jsonAdapter = moshi.adapter(Request::class.java).lenient()
+            RequestDetailsScreenBody(
+                navController = navController,
+                request = jsonAdapter.fromJson(requestJson)!!
             )
         }
     }

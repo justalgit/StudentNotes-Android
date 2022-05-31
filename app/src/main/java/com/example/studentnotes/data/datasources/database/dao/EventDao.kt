@@ -3,6 +3,7 @@ package com.example.studentnotes.data.datasources.database.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.Group
 
 @Dao
 interface EventDao {
@@ -19,6 +20,9 @@ interface EventDao {
 
     @Delete
     fun delete(event: Event)
+
+    @Query("select * from event where id = :eventId")
+    fun getById(eventId: String): Event
 
     @Query("select * from event order by event_date")
     fun getAll(): LiveData<List<Event>>

@@ -32,6 +32,8 @@ data class User(
     }
 }
 
+fun User.stringifiedName() = "$name $surname"
+
 fun User.toJson(): String {
     val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
     val jsonAdapter = moshi.adapter(User::class.java).lenient()

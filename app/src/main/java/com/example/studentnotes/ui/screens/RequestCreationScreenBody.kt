@@ -197,12 +197,16 @@ fun RequestCreationScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
+            // TODO: отображать группы в зависимости от наличия в них текущего пользователя
+            // если запрос, то только те, в которых не состоит
+            // если приглашение, то только те, в которых состоит
             UiDropdownList(
                 label = stringResource(R.string.group),
                 selectedOption = selectedGroupTitle,
                 suggestions = availableGroups.map { it.title }.distinct()
             )
             AnimatedVisibility(selectedOption == stringResource(R.string.invitation)) {
+                // TODO: отображать всех пользователей, кроме текущего
                 UiDropdownList(
                     label = stringResource(R.string.user),
                     selectedOption = selectedUser,
@@ -216,7 +220,6 @@ fun RequestCreationScreenBody(
             isEnabled = isMessageAbsent || !isMessageAbsent && requestMessage.isNotBlank(),
             onClick = {
                 val nameAndSurname = selectedUser.value.split("\\s".toRegex()).toTypedArray()
-                // TODO: пофиксить запрос на приглашение
                 viewModel.createRequest(
                     Request(
                         id = UUID.randomUUID().toString(),
@@ -225,7 +228,7 @@ fun RequestCreationScreenBody(
                             databaseRepo.getUserByNameAndSurname(
                                 nameAndSurname[0],
                                 nameAndSurname[1]
-                            ).value?.id ?: ""
+                            ).id
                         } else {
                             currentUserId
                         },

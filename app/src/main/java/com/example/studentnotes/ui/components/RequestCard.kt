@@ -1,36 +1,40 @@
 package com.example.studentnotes.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentnotes.R
 import com.example.studentnotes.data.entities.Request
+import com.example.studentnotes.data.entities.RequestType
+import com.example.studentnotes.data.entities.requestType
 import com.example.studentnotes.ui.theme.*
-
-enum class RequestType {
-    OUTCOMING_REQUEST,
-    INCOMING_REQUEST,
-    INVITATION
-}
+import com.example.studentnotes.utils.getLoggedInUserId
+import com.example.studentnotes.utils.getUserSharedPreferences
 
 @Composable
 fun RequestCard(
     request: Request,
     requestType: RequestType,
-    onAcceptButtonClick: () -> Unit = {},
-    onDeclineButtonClick: () -> Unit = {}
+    author: String,
+    group: String,
+    incomingUser: String,
+    onRequestClick: () -> Unit = {}
 ) {
 
     val context = LocalContext.current
+    val sharedPrefs = context.getUserSharedPreferences()
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
 
     Card(
         backgroundColor = Color.White,
@@ -40,7 +44,13 @@ fun RequestCard(
             .padding(vertical = 8.dp),
         elevation = 4.dp
     ) {
-        Column {
+        Column(
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(),
+                onClick = onRequestClick
+            )
+        ) {
             RequestTypeLabel(
                 requestType = requestType
             )
@@ -49,52 +59,25 @@ fun RequestCard(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
-                    text = when(requestType) {
+                    text = when(request.requestType(currentUserId)) {
                         RequestType.INCOMING_REQUEST -> context.getString(
                             R.string.user_wants_to_join_group,
-                            request.authorId,
-                            request.groupId
+                            author,
+                            group
                         )
                         RequestType.OUTCOMING_REQUEST -> context.getString(
                             R.string.you_sent_request_to_join_group,
-                            request.groupId
+                            group
                         )
                         RequestType.INVITATION -> context.getString(
                             R.string.you_invited_user_to_join_group,
-                            request.incomingUserId,
-                            request.groupId
+                            incomingUser,
+                            group
                         )
                     },
                     style = Typography.body2,
                     color = Color.Black
                 )
-                Text(
-                    text = request.message ?: stringResource(R.string.no_message),
-                    style = Typography.body1,
-                    color = Color.Gray
-                )
-                Row(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .padding(top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    UiChoiceButton(
-                        modifier = Modifier
-                            .weight(1f),
-                        isAcceptButton = false,
-                        onClick = onDeclineButtonClick
-                    )
-                    if (requestType == RequestType.INCOMING_REQUEST) {
-                        UiChoiceButton(
-                            modifier = Modifier
-                                .weight(1f),
-                            isAcceptButton = true,
-                            onClick = onAcceptButtonClick
-                        )
-                    }
-                }
             }
         }
     }
@@ -118,49 +101,6 @@ fun RequestTypeLabel(requestType: RequestType) {
             style = Typography.body1,
             modifier = Modifier
                 .padding(8.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RequestCardPreview() {
-    Column(
-        modifier = Modifier.padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        RequestCard(
-            request = Request(
-                id = "123",
-                authorId = "Макар Павлов",
-                incomingUserId = "Макар Павлов",
-                groupId = "М8О-203М-20",
-                requestDate = 123L,
-                message = "Хочу к вам"
-            ),
-            requestType = RequestType.INCOMING_REQUEST
-        )
-        RequestCard(
-            request = Request(
-                id = "123",
-                authorId = "Макар Павлов",
-                incomingUserId = "Макар Павлов",
-                groupId = "М8О-203М-20",
-                requestDate = 123L,
-                message = "Хочу к вам"
-            ),
-            requestType = RequestType.OUTCOMING_REQUEST
-        )
-        RequestCard(
-            request = Request(
-                id = "123",
-                authorId = "Алексей Воробьев",
-                incomingUserId = "Макар Павлов",
-                groupId = "М8О-203М-20",
-                requestDate = 123L,
-                message = "Го к нам"
-            ),
-            requestType = RequestType.INVITATION
         )
     }
 }

@@ -9,11 +9,27 @@ import kotlinx.coroutines.withContext
 
 class DatabaseRepository(private val database: StudentNotesDatabase) {
 
+    fun getGroupById(groupId: String): Group {
+        return database.groupDao.getById(groupId)
+    }
+
+    fun getUserById(userId: String): User {
+        return database.userDao.getById(userId)
+    }
+
+    fun getEventById(eventId: String): Event {
+        return database.eventDao.getById(eventId)
+    }
+
+    fun getRequestById(requestId: String): Request {
+        return database.requestDao.getById(requestId)
+    }
+
     fun getGroupByTitle(groupTitle: String): Group {
         return database.groupDao.getByTitle(groupTitle)
     }
 
-    fun getUserByNameAndSurname(name: String, surname: String): LiveData<User> {
+    fun getUserByNameAndSurname(name: String, surname: String): User {
         return database.userDao.getByNameAndSurname(name, surname)
     }
 

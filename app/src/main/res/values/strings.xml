@@ -41,6 +41,7 @@
     <string name="edit">Редактировать</string>
     <string name="invite">Пригласить</string>
     <string name="group">Группа</string>
+    <string name="group_with_parameter">Группа: %s</string>
     <string name="editable_event">Редактируемое событие</string>
     <string name="editable_group">Редактируемая группа</string>
     <string name="event_title">Название события</string>
@@ -86,4 +87,10 @@
     <string name="unknown_error">Неизвестная ошибка</string>
     <string name="incoming_requests">Входящие запросы</string>
     <string name="outcoming_requests">Исходящие запросы</string>
+    <string name="outcoming_request">Исходящий запрос</string>
+    <string name="incoming_request">Входящий запрос</string>
+    <string name="request_date">Время отправки: %s</string>
+    <string name="user_can_join_after_request_acceptance">%s сможет вступить в группу после принятия данного запроса</string>
+    <string name="request_accepted_successfully">Запрос успешно принят</string>
+    <string name="request_deleted_successfully">Запрос успешно удален</string>
 </resources>

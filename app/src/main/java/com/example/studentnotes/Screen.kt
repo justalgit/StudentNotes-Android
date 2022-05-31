@@ -18,8 +18,8 @@ sealed class Screen(
     object GroupDetailsScreen: Screen("group_details_screen")
     object GroupEditingScreen: Screen("group_editing_screen")
 
-    object RequestSearchScreen: Screen("request_search_screen")
     object RequestCreationScreen: Screen("request_creation_screen")
+    object RequestDetailsScreen: Screen("request_details_screen")
 
     object SettingsScreen: Screen("settings_screen")
 

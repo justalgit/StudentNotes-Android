@@ -79,26 +79,6 @@ class MainPagerViewModel(context: Context) : ViewModel() {
             }
         }
     }
-
-    fun deleteRequest(requestId: String, isAccept: Boolean) {
-        viewModelScope.launch {
-            try {
-                _requestStatus.value = ApiRequestStatus.LOADING
-                serverRepo.deleteRequest(requestId, isAccept)
-                _requestStatus.value = ApiRequestStatus.DONE
-                Log.d("deleteRequest", "success, is_accept = $isAccept")
-            }
-            catch (e: Exception) {
-                _requestStatus.value = when (e) {
-                    is HttpException -> ApiRequestStatus.HTTP_ERROR
-                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
-                    else -> ApiRequestStatus.UNKNOWN_ERROR
-                }
-                Log.d("deleteRequest", "error: ${e.message}")
-            }
-        }
-    }
-
 }
 
 @Composable
@@ -106,7 +86,7 @@ fun MainPagerScreenBody(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val viewModel = MainPagerViewModel(context)
+    val viewModel by remember { mutableStateOf(MainPagerViewModel(context)) }
     val requestStatus by viewModel.requestStatus.observeAsState()
     val initialData by viewModel.userInitialData.observeAsState()
 
@@ -141,8 +121,7 @@ fun MainPagerScreenBody(
                     )
                     menus[2] -> RequestsScreenBody(
                         navController = navController,
-                        requestsList = initialData?.requestsList ?: emptyList(),
-                        viewModel = viewModel
+                        requestsList = initialData?.requestsList ?: emptyList()
                     )
                     menus[3] -> SettingsScreenBody(
                         navController = navController

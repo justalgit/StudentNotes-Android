@@ -21,11 +21,11 @@ interface UserDao {
     fun delete(user: User)
 
     @Query("select * from user where id = :userId")
-    fun getById(userId: String): LiveData<User>
+    fun getById(userId: String): User
 
     // TODO: пофиксить выборку
     @Query("select * from user where name like :name and surname like :surname")
-    fun getByNameAndSurname(name: String, surname: String): LiveData<User>
+    fun getByNameAndSurname(name: String, surname: String): User
 
     @Query("select * from user")
     fun getAll(): LiveData<List<User>>
