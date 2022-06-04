@@ -106,92 +106,92 @@ fun Navigation(
         }
 
         composable(
-            route = Screen.EventDetailsScreen.route + "/{event}",
+            route = Screen.EventDetailsScreen.route + "/{eventId}",
             arguments = listOf(
-                navArgument("event") {
+                navArgument("eventId") {
                     type = NavType.StringType
                     nullable = false
                 }
             )
         ) { entry ->
-            val eventJson =  entry.arguments?.getString("event")
+            val eventJson =  entry.arguments?.getString("eventId")
             val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-            val jsonAdapter = moshi.adapter(Event::class.java).lenient()
+            val jsonAdapter = moshi.adapter(String::class.java).lenient()
             EventDetailsScreenBody(
                 navController = navController,
-                event = jsonAdapter.fromJson(eventJson)!!
+                eventId = jsonAdapter.fromJson(eventJson)!!
             )
         }
 
         composable(
-            route = Screen.EventEditingScreen.route + "/{event}",
+            route = Screen.EventEditingScreen.route + "/{eventId}",
             arguments = listOf(
-                navArgument("event") {
+                navArgument("eventId") {
                     type = NavType.StringType
                     nullable = false
                 }
             )
         ) { entry ->
-            val eventJson = entry.arguments?.getString("event")
+            val eventJson = entry.arguments?.getString("eventId")
             val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-            val jsonAdapter = moshi.adapter(Event::class.java).lenient()
+            val jsonAdapter = moshi.adapter(String::class.java).lenient()
             EventEditingScreenBody(
                 navController = navController,
-                event = jsonAdapter.fromJson(eventJson)!!
+                eventId = jsonAdapter.fromJson(eventJson)!!
             )
         }
 
         composable(
-            route = Screen.GroupDetailsScreen.route + "/{group}",
+            route = Screen.GroupDetailsScreen.route + "/{groupId}",
             arguments = listOf(
-                navArgument("group") {
+                navArgument("groupId") {
                     type = NavType.StringType
                     nullable = false
                 }
             )
         ) { entry ->
-            val groupJson =  entry.arguments?.getString("group")
+            val groupJson =  entry.arguments?.getString("groupId")
             val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-            val jsonAdapter = moshi.adapter(Group::class.java).lenient()
+            val jsonAdapter = moshi.adapter(String::class.java).lenient()
             GroupDetailsScreenBody(
                 navController = navController,
-                group = jsonAdapter.fromJson(groupJson)!!
+                groupId = jsonAdapter.fromJson(groupJson)!!
             )
         }
 
         composable(
-            route = Screen.GroupEditingScreen.route + "/{group}",
+            route = Screen.GroupEditingScreen.route + "/{groupId}",
             arguments = listOf(
-                navArgument("group") {
+                navArgument("groupId") {
                     type = NavType.StringType
                     nullable = false
                 }
             )
         ) { entry ->
-            val groupJson = entry.arguments?.getString("group")
+            val groupJson = entry.arguments?.getString("groupId")
             val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-            val jsonAdapter = moshi.adapter(Group::class.java).lenient()
+            val jsonAdapter = moshi.adapter(String::class.java).lenient()
             GroupEditingScreenBody(
                 navController = navController,
-                group = jsonAdapter.fromJson(groupJson)!!
+                groupId = jsonAdapter.fromJson(groupJson)!!
             )
         }
 
         composable(
-            route = Screen.RequestDetailsScreen.route + "/{request}",
+            route = Screen.RequestDetailsScreen.route + "/{requestId}",
             arguments = listOf(
-                navArgument("request") {
+                navArgument("requestId") {
                     type = NavType.StringType
                     nullable = false
                 }
             )
         ) { entry ->
-            val requestJson = entry.arguments?.getString("request")
+            val requestJson = entry.arguments?.getString("requestId")
             val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-            val jsonAdapter = moshi.adapter(Request::class.java).lenient()
+            val jsonAdapter = moshi.adapter(String::class.java).lenient()
             RequestDetailsScreenBody(
                 navController = navController,
-                request = jsonAdapter.fromJson(requestJson)!!
+                requestId = jsonAdapter.fromJson(requestJson)!!
             )
         }
     }

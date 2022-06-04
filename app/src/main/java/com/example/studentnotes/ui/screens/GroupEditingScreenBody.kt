@@ -31,8 +31,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
 import com.example.studentnotes.ui.theme.LightGreen
@@ -96,11 +98,15 @@ class GroupEditingViewModel : ViewModel() {
 @Composable
 fun GroupEditingScreenBody(
     navController: NavController,
-    group: Group,
+    groupId: String,
     viewModel: GroupEditingViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val sharedPrefs = context.getUserSharedPreferences()
+    val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val group = databaseRepo.getGroupById(groupId)
     val coroutineScope = rememberCoroutineScope()
 
     val requestStatus by viewModel.requestStatus.observeAsState()
@@ -220,7 +226,7 @@ fun GroupEditingScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
-            if (sharedPrefs?.getLoggedInUserId() == group.creatorId) {
+            if (currentUserId == group.creatorId) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -257,7 +263,7 @@ fun GroupEditingScreenBody(
                     group.apply {
                         title = groupTitle
                         description = if (!isDescriptionAbsent) groupDescription else null
-                        lastModifiedUserId = sharedPrefs?.getLoggedInUserId() ?: ""
+                        lastModifiedUserId = currentUserId
                         isPrivate = selectedOption == context.getString(R.string.closed_group)
                         lastModifiedDate = getCurrentTimestamp()
                         isEditable = isGroupEditable
@@ -279,7 +285,7 @@ fun GroupEditingScreenBody(
             }
         )
 
-        if (sharedPrefs?.getLoggedInUserId() == group.creatorId) {
+        if (currentUserId == group.creatorId) {
             UiBigButton(
                 text = stringResource(R.string.delete),
                 color = LightRed,

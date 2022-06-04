@@ -1,6 +1,5 @@
 package com.example.studentnotes.data.datasources.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.studentnotes.data.entities.User
 
@@ -23,12 +22,11 @@ interface UserDao {
     @Query("select * from user where id = :userId")
     fun getById(userId: String): User
 
-    // TODO: пофиксить выборку
     @Query("select * from user where name like :name and surname like :surname")
     fun getByNameAndSurname(name: String, surname: String): User
 
     @Query("select * from user")
-    fun getAll(): LiveData<List<User>>
+    fun getAll(): List<User>
 
     @Query("delete from user")
     fun clear()

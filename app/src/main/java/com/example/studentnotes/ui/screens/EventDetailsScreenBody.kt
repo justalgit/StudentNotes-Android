@@ -13,8 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
-import com.example.studentnotes.data.entities.Event
-import com.example.studentnotes.data.entities.toJson
+import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
+import com.example.studentnotes.data.entities.stringifiedName
+import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.ui.components.UiBackButton
 import com.example.studentnotes.ui.components.UiBigButton
 import com.example.studentnotes.ui.components.UiHeader
@@ -24,12 +25,19 @@ import com.example.studentnotes.utils.*
 @Composable
 fun EventDetailsScreenBody(
     navController: NavController,
-    event: Event?
+    eventId: String?
 ) {
 
     val context = LocalContext.current
     val sharedPrefs = context.getUserSharedPreferences()
     val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    val event = databaseRepo.getEventById(eventId ?: "")
+    val eventAuthor = databaseRepo.getUserById(event.authorId)
+    val eventGroup = databaseRepo.getGroupById(event.groupId)
+    val eventLastModifiedUser = databaseRepo.getUserById(event.lastModifiedUserId)
 
     Column(
         modifier = Modifier
@@ -45,7 +53,7 @@ fun EventDetailsScreenBody(
                 )
             },
             rightRowContent = {
-                Text(event!!.groupId.cutOff(HEADER_TITLE_LENGTH).uppercase())
+                Text(eventGroup.title.cutOff(HEADER_TITLE_LENGTH).uppercase())
             }
         )
         if (event != null) {
@@ -66,6 +74,11 @@ fun EventDetailsScreenBody(
                     color = Color.Black
                 )
                 Text(
+                    text = context.getString(R.string.author, eventAuthor.stringifiedName()),
+                    style = Typography.body1,
+                    color = Color.Gray
+                )
+                Text(
                     text = event.description ?: stringResource(R.string.no_description),
                     style = Typography.body1,
                     color = Color.Black
@@ -73,7 +86,7 @@ fun EventDetailsScreenBody(
                 Text(
                     text = context.getString(
                         R.string.last_modified_by,
-                        event.lastModifiedUserId,
+                        eventLastModifiedUser.stringifiedName(),
                         getFormattedDateFromTimestamp(event.lastModifiedDate)
                     ),
                     style = Typography.caption,
@@ -96,7 +109,7 @@ fun EventDetailsScreenBody(
                     text = stringResource(R.string.edit),
                     onClick = {
                         navController.navigate(
-                            Screen.EventEditingScreen.withArgs(event.toJson())
+                            Screen.EventEditingScreen.withArgs(event.id)
                         )
                     }
                 )

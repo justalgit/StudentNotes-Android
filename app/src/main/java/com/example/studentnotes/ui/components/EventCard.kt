@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.ui.theme.Typography
@@ -24,6 +23,8 @@ import com.example.studentnotes.utils.getFormattedDateFromTimestamp
 @Composable
 fun EventCard(
     event: Event,
+    author: String,
+    group: String,
     onClick: () -> Unit = {}
 ) {
 
@@ -61,12 +62,12 @@ fun EventCard(
                     color = Color.Black
                 )
                 Text(
-                    text = event.groupId,
+                    text = group,
                     style = Typography.caption,
                     color = Color.Black
                 )
                 Text(
-                    text = context.getString(R.string.author, event.authorId),
+                    text = context.getString(R.string.author, author),
                     style = Typography.caption,
                     color = Color.Gray
                 )
@@ -76,40 +77,5 @@ fun EventCard(
                 contentDescription = null
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EventCardPreview() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-    ) {
-        EventCard(
-            event = Event(
-                id = "123",
-                title = "Сделать ДЗ по английскому",
-                description = "Новый тест по старому модулю",
-                authorId = "Алексей Воробьев",
-                eventDate = 12345L,
-                lastModifiedDate = 12345L,
-                lastModifiedUserId = "Алексей Воробьев",
-                groupId = "М8О-203М-20"
-            )
-        )
-        EventCard(
-            event = Event(
-                id = "123",
-                title = "Сделать ДЗ по английскому",
-                description = "Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю Новый тест по старому модулю",
-                authorId = "Алексей Воробьев",
-                eventDate = 12345L,
-                lastModifiedDate = 12345L,
-                lastModifiedUserId = "Алексей Воробьев",
-                groupId = "М8О-203М-20"
-            )
-        )
     }
 }

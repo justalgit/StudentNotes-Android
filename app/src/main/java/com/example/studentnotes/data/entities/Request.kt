@@ -14,9 +14,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 enum class RequestType {
-    OUTCOMING_REQUEST,
-    INCOMING_REQUEST,
-    INVITATION
+    OUTCOMING,
+    INCOMING,
 }
 
 @JsonClass(generateAdapter = true)
@@ -35,12 +34,6 @@ data class RequestsList(
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = User::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("incoming_user_id"),
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
             entity = Group::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("group_id"),
@@ -54,8 +47,6 @@ data class Request(
     var id: String,
     @ColumnInfo(name = "author_id") @Json(name = "author_id")
     var authorId: String,
-    @ColumnInfo(name = "incoming_user_id") @Json(name = "incoming_user_id")
-    var incomingUserId: String,
     @ColumnInfo(name = "group_id") @Json(name = "group_id")
     var groupId: String,
     @ColumnInfo(name = "request_date") @Json(name = "request_date")
@@ -66,26 +57,22 @@ data class Request(
     init {
         id = id.replaceDashes()
         authorId = authorId.replaceDashes()
-        incomingUserId = incomingUserId.replaceDashes()
         groupId = groupId.replaceDashes()
     }
 }
 
 fun Request.requestType(currentUserId: String): RequestType {
     return if (authorId != currentUserId)
-        RequestType.INCOMING_REQUEST
-    else if (authorId == currentUserId && incomingUserId == currentUserId)
-        RequestType.OUTCOMING_REQUEST
+        RequestType.INCOMING
     else
-        RequestType.INVITATION
+        RequestType.OUTCOMING
 }
 
 fun Request.requestTypeStringValue(context: Context, currentUserId: String): String {
     val requestType = requestType(currentUserId)
     return when (requestType) {
-        RequestType.INCOMING_REQUEST -> context.getString(R.string.incoming_request)
-        RequestType.OUTCOMING_REQUEST -> context.getString(R.string.outcoming_request)
-        RequestType.INVITATION -> context.getString(R.string.invitation)
+        RequestType.INCOMING -> context.getString(R.string.incoming_request)
+        RequestType.OUTCOMING -> context.getString(R.string.outcoming_request)
     }
 }
 
@@ -95,31 +82,14 @@ fun Request.RequestTypeTextMessage(
     databaseRepo: DatabaseRepository
 ): String {
     return when (this.requestType(currentUserId)) {
-        RequestType.INCOMING_REQUEST -> context.getString(
+        RequestType.INCOMING -> context.getString(
             R.string.user_wants_to_join_group,
             authorId,
             groupId
         )
-        RequestType.OUTCOMING_REQUEST -> context.getString(
+        RequestType.OUTCOMING -> context.getString(
             R.string.you_sent_request_to_join_group,
             groupId
         )
-        RequestType.INVITATION -> context.getString(
-            R.string.you_invited_user_to_join_group,
-            incomingUserId,
-            groupId
-        )
     }
-}
-
-fun Request.toJson(): String {
-    val moshi = Moshi.Builder().build()
-    val jsonAdapter = moshi.adapter(Request::class.java).lenient()
-    return jsonAdapter.toJson(this)
-}
-
-fun RequestsList.toJson(): String {
-    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(RequestsList::class.java).lenient()
-    return jsonAdapter.toJson(this)
 }

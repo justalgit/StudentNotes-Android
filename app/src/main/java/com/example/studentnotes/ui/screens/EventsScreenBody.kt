@@ -16,14 +16,15 @@ import com.example.studentnotes.ui.components.UiIconButton
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.data.entities.*
-import com.example.studentnotes.ui.components.EventsList
+import com.example.studentnotes.ui.components.EventsListComposable
 import com.example.studentnotes.ui.theme.Typography
 
 @Composable
 fun EventsScreenBody(
     navController: NavController,
     eventsList: List<Event>,
-    groupsList: List<Group>
+    groupsList: List<Group>,
+    usersList: List<User>
 ) {
 
     Column(
@@ -54,11 +55,13 @@ fun EventsScreenBody(
                 }
             }
         )
-        EventsList(
+        EventsListComposable(
             events = eventsList,
+            users = usersList,
+            groups = groupsList,
             onEventClick = { event ->
                 navController.navigate(
-                    Screen.EventDetailsScreen.withArgs(event.toJson())
+                    Screen.EventDetailsScreen.withArgs(event.id)
                 )
             }
         )

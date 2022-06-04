@@ -1,6 +1,5 @@
 package com.example.studentnotes.data.datasources.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.studentnotes.data.entities.Group
 
@@ -26,8 +25,11 @@ interface GroupDao {
     @Query("select * from `group` where title = :groupTitle")
     fun getByTitle(groupTitle: String): Group
 
+    @Query("select `group`.* from `group` join user_group_relation on user_group_relation.group_id = `group`.id where user_id = :userId")
+    fun getForUser(userId: String) : List<Group>
+
     @Query("select * from `group` order by title")
-    fun getAll(): LiveData<List<Group>>
+    fun getAll(): List<Group>
 
     @Query("delete from `group`")
     fun clear()

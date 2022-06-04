@@ -71,7 +71,7 @@ class RequestDetailsViewModel : ViewModel() {
 @Composable
 fun RequestDetailsScreenBody(
     navController: NavController,
-    request: Request,
+    requestId: String,
     viewModel: RequestDetailsViewModel = viewModel()
 ) {
 
@@ -79,13 +79,13 @@ fun RequestDetailsScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
+    val request = databaseRepo.getRequestById(requestId)
     val sharedPrefs = context.getUserSharedPreferences()
     val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
     val requestStatus by viewModel.requestStatus.observeAsState()
 
     val requestAuthor = databaseRepo.getUserById(request.authorId)
     val requestGroup = databaseRepo.getGroupById(request.groupId)
-    val requestIncomingUser = databaseRepo.getUserById(request.incomingUserId)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -142,14 +142,16 @@ fun RequestDetailsScreenBody(
                 style = Typography.body1,
                 color = Color.Black
             )
-            Text(
-                text = context.getString(
-                    R.string.user_can_join_after_request_acceptance,
-                    "${requestIncomingUser.name} ${requestIncomingUser.surname}"
-                ),
-                style = Typography.body1,
-                color = Color.Gray
-            )
+            if (request.requestType(currentUserId) != RequestType.OUTCOMING) {
+                Text(
+                    text = context.getString(
+                        R.string.user_can_join_after_request_acceptance,
+                        requestAuthor.stringifiedName()
+                    ),
+                    style = Typography.body1,
+                    color = Color.Gray
+                )
+            }
             Text(
                 text = context.getString(
                     R.string.request_date,
@@ -159,28 +161,29 @@ fun RequestDetailsScreenBody(
                 color = Color.Gray
             )
         }
-        if (request.requestType(currentUserId) == RequestType.INCOMING_REQUEST) {
-            if (!requestGroup.isPrivate || (requestGroup.isPrivate && requestGroup.creatorId == currentUserId))
-            UiBigButton(
-                text = stringResource(R.string.accept),
-                color = LightGreen,
-                isEnabled = true,
-                onClick = {
-                    coroutineScope.launch {
-                        viewModel.deleteRequest(request.id, isAccept = true)
-                    }
-                    showToast(
-                        context,
-                        context.getString(
-                            R.string.request_accepted_successfully
+        if (request.requestType(currentUserId) == RequestType.INCOMING) {
+            if (requestGroup.isPrivate && requestGroup.creatorId == currentUserId) {
+                UiBigButton(
+                    text = stringResource(R.string.accept),
+                    color = LightGreen,
+                    isEnabled = true,
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.deleteRequest(request.id, isAccept = true)
+                        }
+                        showToast(
+                            context,
+                            context.getString(
+                                R.string.request_accepted_successfully
+                            )
                         )
-                    )
-                    navController.popBackStack(
-                        Screen.MainPagerScreen.route,
-                        inclusive = false
-                    )
-                }
-            )
+                        navController.popBackStack(
+                            Screen.MainPagerScreen.route,
+                            inclusive = false
+                        )
+                    }
+                )
+            }
         }
         UiBigButton(
             text = stringResource(R.string.delete),

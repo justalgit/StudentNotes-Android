@@ -28,7 +28,6 @@ fun RequestCard(
     requestType: RequestType,
     author: String,
     group: String,
-    incomingUser: String,
     onRequestClick: () -> Unit = {}
 ) {
 
@@ -60,18 +59,13 @@ fun RequestCard(
             ) {
                 Text(
                     text = when(request.requestType(currentUserId)) {
-                        RequestType.INCOMING_REQUEST -> context.getString(
+                        RequestType.INCOMING -> context.getString(
                             R.string.user_wants_to_join_group,
                             author,
                             group
                         )
-                        RequestType.OUTCOMING_REQUEST -> context.getString(
+                        RequestType.OUTCOMING -> context.getString(
                             R.string.you_sent_request_to_join_group,
-                            group
-                        )
-                        RequestType.INVITATION -> context.getString(
-                            R.string.you_invited_user_to_join_group,
-                            incomingUser,
                             group
                         )
                     },
@@ -94,8 +88,8 @@ fun RequestTypeLabel(requestType: RequestType) {
     ) {
         Text(
             text = when(requestType) {
-                RequestType.INVITATION -> stringResource(R.string.invitation)
-                else -> stringResource(R.string.request_to_join)
+                RequestType.OUTCOMING -> stringResource(R.string.outcoming_request)
+                else -> stringResource(R.string.incoming_request)
             },
             color = Color.White,
             style = Typography.body1,

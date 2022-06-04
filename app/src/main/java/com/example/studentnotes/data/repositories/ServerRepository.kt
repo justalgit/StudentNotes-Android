@@ -4,10 +4,7 @@ import com.example.studentnotes.data.datasources.server.StudentNotesApi
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.datasources.server.json.LoginRequest
 import com.example.studentnotes.data.datasources.server.json.LoginResponse
-import com.example.studentnotes.data.entities.Event
-import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.entities.GroupsList
-import com.example.studentnotes.data.entities.Request
+import com.example.studentnotes.data.entities.*
 
 class ServerRepository {
 
@@ -23,6 +20,10 @@ class ServerRepository {
 
     suspend fun getAllGroups(): GroupsList {
         return StudentNotesApi.retrofitService.getAllGroups()
+    }
+
+    suspend fun getAllUsers(): UsersList {
+        return StudentNotesApi.retrofitService.getAllUsers()
     }
 
     suspend fun createGroup(group: Group) {
@@ -55,6 +56,10 @@ class ServerRepository {
 
     suspend fun deleteRequest(requestId: String, isAccept: Boolean) {
         return StudentNotesApi.retrofitService.deleteRequest(requestId, isAccept)
+    }
+
+    suspend fun leaveGroup(groupId: String, userId: String) {
+        return StudentNotesApi.retrofitService.leaveGroup(groupId, userId)
     }
 
 }

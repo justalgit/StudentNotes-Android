@@ -58,16 +58,3 @@ data class Group(
         lastModifiedUserId = lastModifiedUserId.replaceDashes()
     }
 }
-
-
-fun Group.toJson(): String {
-    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(Group::class.java).lenient()
-    return jsonAdapter.toJson(this)
-}
-
-fun GroupsList.toJson(): String {
-    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(GroupsList::class.java).lenient()
-    return jsonAdapter.toJson(this)
-}

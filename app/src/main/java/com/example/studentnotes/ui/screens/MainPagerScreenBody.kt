@@ -19,6 +19,7 @@ import com.example.studentnotes.R
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
+import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.UiProgressDialog
@@ -46,37 +47,61 @@ class MainPagerViewModel(context: Context) : ViewModel() {
     val userInitialData: LiveData<InitialDataResponse>
         get() = _userInitialData
 
+    private val _groupsForUser = MutableLiveData<List<Group>>()
+    val groupsForUser: LiveData<List<Group>>
+        get() = _groupsForUser
+
     private val _requestStatus = MutableLiveData<ApiRequestStatus>()
     val requestStatus: LiveData<ApiRequestStatus>
         get() = _requestStatus
 
     init {
-        getInitialData(currentUserId)
+        viewModelScope.launch {
+            getInitialData(currentUserId)
+            getGroupsForUser(currentUserId)
+        }
     }
 
-    fun getInitialData(userId: String) {
-        viewModelScope.launch {
-            try {
-                _requestStatus.value = ApiRequestStatus.LOADING
-                _userInitialData.value = serverRepo.getInitialData(userId)
-                databaseRepo.insertInitialData(_userInitialData.value!!)
-                _requestStatus.value = ApiRequestStatus.DONE
-                Log.d("initialData", "success")
+    private suspend fun getInitialData(userId: String) {
+        try {
+            _requestStatus.value = ApiRequestStatus.LOADING
+            _userInitialData.value = serverRepo.getInitialData(userId)
+            databaseRepo.clearData()
+            databaseRepo.insertInitialData(_userInitialData.value!!)
+            _requestStatus.value = ApiRequestStatus.DONE
+            Log.d("initialData", "success")
+        }
+        catch (e: Exception) {
+            _requestStatus.value = when (e) {
+                is HttpException -> ApiRequestStatus.HTTP_ERROR
+                is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                else -> ApiRequestStatus.UNKNOWN_ERROR
             }
-            catch (e: Exception) {
-                _requestStatus.value = when (e) {
-                    is HttpException -> ApiRequestStatus.HTTP_ERROR
-                    is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
-                    else -> ApiRequestStatus.UNKNOWN_ERROR
-                }
-                Log.d("initialData", "error: ${e.message}")
-                _userInitialData.value?.apply {
-                    groupsList = emptyList()
-                    eventsList = emptyList()
-                    requestsList = emptyList()
-                    userGroupRelationsList = emptyList()
-                }
+            Log.d("initialData", "error: ${e.message}")
+            _userInitialData.value?.apply {
+                groupsList = emptyList()
+                eventsList = emptyList()
+                requestsList = emptyList()
+                userGroupRelationsList = emptyList()
             }
+        }
+    }
+
+    private fun getGroupsForUser(userId: String) {
+        try {
+            _requestStatus.value = ApiRequestStatus.LOADING
+            _groupsForUser.value = databaseRepo.getUserGroups(userId)
+            _requestStatus.value = ApiRequestStatus.DONE
+            Log.d("groupsForUser", "success")
+        }
+        catch (e: Exception) {
+            _requestStatus.value = when (e) {
+                is HttpException -> ApiRequestStatus.HTTP_ERROR
+                is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                else -> ApiRequestStatus.UNKNOWN_ERROR
+            }
+            Log.d("groupsForUser", "error: ${e.message}")
+            _groupsForUser.value = emptyList()
         }
     }
 }
@@ -89,6 +114,7 @@ fun MainPagerScreenBody(
     val viewModel by remember { mutableStateOf(MainPagerViewModel(context)) }
     val requestStatus by viewModel.requestStatus.observeAsState()
     val initialData by viewModel.userInitialData.observeAsState()
+    val groupsForUser by viewModel.groupsForUser.observeAsState()
 
     val menus = listOf(
         TabData(stringResource(R.string.events), painterResource(R.drawable.ic_events_24)),
@@ -109,19 +135,25 @@ fun MainPagerScreenBody(
                 if (requestStatus == ApiRequestStatus.LOADING) {
                     UiProgressDialog()
                 }
-                when(selectedMenu) {
+                when (selectedMenu) {
                     menus[0] -> EventsScreenBody(
                         navController = navController,
                         eventsList = initialData?.eventsList ?: emptyList(),
-                        groupsList = initialData?.groupsList ?: emptyList()
+                        groupsList = initialData?.groupsList ?: emptyList(),
+                        usersList = initialData?.usersList ?: emptyList()
                     )
-                    menus[1] -> GroupsScreenBody(
-                        navController = navController,
-                        groupsList = initialData?.groupsList ?: emptyList()
-                    )
+                    menus[1] -> {
+                        GroupsScreenBody(
+                            navController = navController,
+                            groupsList = groupsForUser ?: emptyList(),
+                            usersList = initialData?.usersList ?: emptyList()
+                        )
+                    }
                     menus[2] -> RequestsScreenBody(
                         navController = navController,
-                        requestsList = initialData?.requestsList ?: emptyList()
+                        requestsList = initialData?.requestsList ?: emptyList(),
+                        groupsList = initialData?.groupsList ?: emptyList(),
+                        usersList = initialData?.usersList ?: emptyList()
                     )
                     menus[3] -> SettingsScreenBody(
                         navController = navController

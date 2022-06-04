@@ -1,7 +1,6 @@
 package com.example.studentnotes.ui.screens
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
@@ -97,10 +96,17 @@ class EventEditingViewModel : ViewModel() {
 @Composable
 fun EventEditingScreenBody(
     navController: NavController,
-    event: Event,
+    eventId: String,
     viewModel: EventEditingViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val sharedPrefs = context?.getUserSharedPreferences()
+    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
+    val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
 
+    val event = databaseRepo.getEventById(eventId ?: "")
     var eventTitle by rememberSaveable { mutableStateOf(event.title) }
     var eventDescription by rememberSaveable { mutableStateOf(event.description ?: "") }
     var isDescriptionAbsent by rememberSaveable { mutableStateOf(event.description == null) }
@@ -109,9 +115,6 @@ fun EventEditingScreenBody(
     var eventTime by rememberSaveable { mutableStateOf(getLocalTimeFromTimestamp(event.eventDate)) }
 
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val sharedPrefs = context?.getUserSharedPreferences()
-    val currentUserId = sharedPrefs?.getLoggedInUserId() ?: ""
     val requestStatus by viewModel.requestStatus.observeAsState()
 
     var isEventModified by rememberSaveable { mutableStateOf(false) }

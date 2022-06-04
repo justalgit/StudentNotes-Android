@@ -1,8 +1,8 @@
 package com.example.studentnotes.ui.screens
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -21,10 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
@@ -32,6 +29,7 @@ import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Event
+import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
@@ -46,13 +44,48 @@ import java.net.SocketTimeoutException
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class EventCreationViewModel : ViewModel() {
+class EventCreationViewModelFactory(private val context: Context) :
+    ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T = EventCreationViewModel(context) as T
+}
+
+class EventCreationViewModel(context: Context) : ViewModel() {
 
     private val serverRepo = ServerRepository()
+    private val databaseRepo = DatabaseRepository(
+        database = StudentNotesDatabase.getInstance(context.applicationContext)
+    )
+    private val currentUserId = context.getUserSharedPreferences()?.getLoggedInUserId() ?: ""
+
+    private val _groupsForUser = MutableLiveData<List<Group>>()
+    val groupsForUser: LiveData<List<Group>>
+        get() = _groupsForUser
 
     private val _requestStatus = MutableLiveData<ApiRequestStatus>()
     val requestStatus: LiveData<ApiRequestStatus>
         get() = _requestStatus
+
+    init {
+        getGroupsForUser(currentUserId)
+    }
+
+    private fun getGroupsForUser(userId: String) {
+        try {
+            _requestStatus.value = ApiRequestStatus.LOADING
+            _groupsForUser.value = databaseRepo.getUserGroups(userId)
+            _requestStatus.value = ApiRequestStatus.DONE
+            Log.d("groupsForUser", "success")
+        }
+        catch (e: Exception) {
+            _requestStatus.value = when (e) {
+                is HttpException -> ApiRequestStatus.HTTP_ERROR
+                is SocketTimeoutException -> ApiRequestStatus.TIMEOUT_ERROR
+                else -> ApiRequestStatus.UNKNOWN_ERROR
+            }
+            Log.d("groupsForUser", "error: ${e.message}")
+            _groupsForUser.value = emptyList()
+        }
+    }
 
     fun createEvent(event: Event) {
         viewModelScope.launch {
@@ -79,10 +112,8 @@ class EventCreationViewModel : ViewModel() {
 @ExperimentalAnimationApi
 @Composable
 fun EventCreationScreenBody(
-    navController: NavController,
-    viewModel: EventCreationViewModel = viewModel()
+    navController: NavController
 ) {
-
     var eventTitle by rememberSaveable { mutableStateOf("") }
     var eventDescription by rememberSaveable { mutableStateOf("") }
     var isDescriptionAbsent by rememberSaveable { mutableStateOf(false) }
@@ -97,12 +128,13 @@ fun EventCreationScreenBody(
     val databaseRepo = DatabaseRepository(
         database = StudentNotesDatabase.getInstance(context.applicationContext)
     )
+    val viewModel by remember { mutableStateOf(EventCreationViewModel(context)) }
+    val availableGroups by viewModel.groupsForUser.observeAsState()
     val requestStatus by viewModel.requestStatus.observeAsState()
 
-    val availableGroups = databaseRepo.getAllGroups().observeAsState().value ?: emptyList()
     var selectedGroupTitle = remember {
         mutableStateOf(
-            if (availableGroups.isEmpty()) "" else availableGroups[0].title
+            if (availableGroups!!.isEmpty()) "" else availableGroups!![0].title
         )
     }
 
@@ -194,7 +226,7 @@ fun EventCreationScreenBody(
             UiDropdownList(
                 label = stringResource(R.string.group),
                 selectedOption = selectedGroupTitle,
-                suggestions = availableGroups.map { it.title }.distinct()
+                suggestions = availableGroups!!.map { it.title }.distinct()
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -266,20 +298,18 @@ fun EventCreationScreenBody(
                         isEditable = isEventEditable
                     )
                 )
+                showToast(
+                    context,
+                    context.getString(
+                        R.string.event_created_successfully,
+                        eventTitle
+                    )
+                )
+                navController.popBackStack(
+                    Screen.MainPagerScreen.route,
+                    inclusive = false
+                )
             }
         }
-    }
-    if (requestStatus == ApiRequestStatus.DONE) {
-        showToast(
-            context,
-            context.getString(
-                R.string.event_created_successfully,
-                eventTitle
-            )
-        )
-        navController.popBackStack(
-            Screen.MainPagerScreen.route,
-            inclusive = false
-        )
     }
 }

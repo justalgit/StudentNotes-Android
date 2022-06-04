@@ -1,8 +1,6 @@
 package com.example.studentnotes.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,8 +14,8 @@ import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
 import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.entities.toJson
-import com.example.studentnotes.ui.components.GroupCard
+import com.example.studentnotes.data.entities.User
+import com.example.studentnotes.ui.components.GroupsListComposable
 import com.example.studentnotes.ui.components.UiHeader
 import com.example.studentnotes.ui.components.UiIconButton
 import com.example.studentnotes.ui.theme.Typography
@@ -25,7 +23,8 @@ import com.example.studentnotes.ui.theme.Typography
 @Composable
 fun GroupsScreenBody(
     navController: NavController,
-    groupsList: List<Group>
+    groupsList: List<Group>,
+    usersList: List<User>
 ) {
 
     Column(
@@ -53,11 +52,12 @@ fun GroupsScreenBody(
                 )
             }
         )
-        GroupsList(
+        GroupsListComposable(
             groups = groupsList,
+            users = usersList,
             onGroupClick = { group ->
                 navController.navigate(
-                    Screen.GroupDetailsScreen.withArgs(group.toJson())
+                    Screen.GroupDetailsScreen.withArgs(group.id)
                 )
             }
         )
@@ -77,25 +77,6 @@ fun GroupsScreenBody(
                         .fillMaxWidth()
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun GroupsList(
-    modifier: Modifier = Modifier,
-    groups: List<Group>,
-    onGroupClick: (Group) -> Unit
-) {
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        items(groups) { group ->
-            GroupCard(
-                group = group,
-                onClick = { onGroupClick(group) }
-            )
         }
     }
 }

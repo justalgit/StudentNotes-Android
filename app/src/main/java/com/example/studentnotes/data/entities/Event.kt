@@ -67,16 +67,3 @@ data class Event(
         groupId = groupId.replaceDashes()
     }
 }
-
-
-fun Event.toJson(): String {
-    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(Event::class.java).lenient()
-    return jsonAdapter.toJson(this)
-}
-
-fun EventsList.toJson(): String {
-    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(EventsList::class.java).lenient()
-    return jsonAdapter.toJson(this)
-}

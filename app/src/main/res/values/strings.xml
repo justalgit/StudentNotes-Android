@@ -39,7 +39,6 @@
     <string name="author_made_event_uneditable">Автор ограничил возможность редактирования события</string>
     <string name="creator_made_group_uneditable">Создатель группы ограничил возможность ее редактирования</string>
     <string name="edit">Редактировать</string>
-    <string name="invite">Пригласить</string>
     <string name="group">Группа</string>
     <string name="group_with_parameter">Группа: %s</string>
     <string name="editable_event">Редактируемое событие</string>
@@ -93,4 +92,10 @@
     <string name="user_can_join_after_request_acceptance">%s сможет вступить в группу после принятия данного запроса</string>
     <string name="request_accepted_successfully">Запрос успешно принят</string>
     <string name="request_deleted_successfully">Запрос успешно удален</string>
+    <string name="to_join">Вступить</string>
+    <string name="request_sent_to_private_group">Запрос в приватную группу \"%s\" отправлен</string>
+    <string name="you_joined_group">Вы вступили в группу %s</string>
+    <string name="leave_group">Выйти из группы</string>
+    <string name="you_left_group">Вы покинули группу \"%s\"</string>
+    <string name="message">Сообщение</string>
 </resources>

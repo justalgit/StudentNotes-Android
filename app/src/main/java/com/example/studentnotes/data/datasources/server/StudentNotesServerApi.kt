@@ -3,10 +3,7 @@ package com.example.studentnotes.data.datasources.server
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.datasources.server.json.LoginRequest
 import com.example.studentnotes.data.datasources.server.json.LoginResponse
-import com.example.studentnotes.data.entities.Event
-import com.example.studentnotes.data.entities.Group
-import com.example.studentnotes.data.entities.GroupsList
-import com.example.studentnotes.data.entities.Request
+import com.example.studentnotes.data.entities.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -45,6 +42,9 @@ interface StudentNotesServerService {
 
     @GET("groups")
     suspend fun getAllGroups(): GroupsList
+
+    @GET("users")
+    suspend fun getAllUsers(): UsersList
 
     @GET("groups/user/{user_id}")
     suspend fun getUserGroups(
@@ -94,6 +94,11 @@ interface StudentNotesServerService {
         @Query("is_accept") isAccept: Boolean
     )
 
+    @DELETE("user-group-relations")
+    suspend fun leaveGroup(
+        @Query("group_id") groupId: String,
+        @Query("user_id") userId: String
+    )
 }
 
 

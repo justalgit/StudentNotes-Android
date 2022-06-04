@@ -1,11 +1,9 @@
 package com.example.studentnotes.data.repositories
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.entities.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class DatabaseRepository(private val database: StudentNotesDatabase) {
 
@@ -29,23 +27,32 @@ class DatabaseRepository(private val database: StudentNotesDatabase) {
         return database.groupDao.getByTitle(groupTitle)
     }
 
-    fun getUserByNameAndSurname(name: String, surname: String): User {
-        return database.userDao.getByNameAndSurname(name, surname)
+    fun getUserGroups(userId: String): List<Group> {
+        return database.groupDao.getForUser(userId)
     }
 
-    fun getAllUsers(): LiveData<List<User>> {
+    fun getGroupsWithoutUser(userId: String): List<Group> {
+        val allGroups = database.groupDao.getAll()
+        Log.d("allGroupsIds", allGroups.map { it.id }.toString())
+        val groupsForUserIds = database.groupDao.getForUser(userId).map { it.id }
+        Log.d("groupsForUserIds", groupsForUserIds.toString())
+        Log.d("resultIds", allGroups.filter { it.id !in groupsForUserIds }.map {it.id}.toString())
+        return allGroups.filter { it.id !in groupsForUserIds }
+    }
+
+    fun getAllUsers(): List<User> {
         return database.userDao.getAll()
     }
 
-    fun getAllEvents(): LiveData<List<Event>> {
+    fun getAllEvents(): List<Event> {
         return database.eventDao.getAll()
     }
 
-    fun getAllGroups(): LiveData<List<Group>> {
+    fun getAllGroups(): List<Group> {
         return database.groupDao.getAll()
     }
 
-    fun getAllRequests(): LiveData<List<Request>> {
+    fun getAllRequests(): List<Request> {
         return database.requestDao.getAll()
     }
 
@@ -69,77 +76,23 @@ class DatabaseRepository(private val database: StudentNotesDatabase) {
         }
     }
 
-    fun insertUsersList(users: List<User>) {
+    private fun insertUsersList(users: List<User>) {
         database.userDao.insertList(users)
     }
 
-    fun insertGroupsList(groups: List<Group>) {
+    private fun insertGroupsList(groups: List<Group>) {
         database.groupDao.insertList(groups)
     }
 
-    fun insertEventsList(events: List<Event>) {
+    private fun insertEventsList(events: List<Event>) {
         database.eventDao.insertList(events)
     }
 
-    fun insertRequestsList(requests: List<Request>) {
+    private fun insertRequestsList(requests: List<Request>) {
         database.requestDao.insertList(requests)
     }
 
-    fun insertUserGroupRelationsList(userGroupRelations: List<UserGroupRelation>) {
+    private fun insertUserGroupRelationsList(userGroupRelations: List<UserGroupRelation>) {
         database.userGroupRelationDao.insertList(userGroupRelations)
-    }
-
-    suspend fun insertEvent(event: Event) {
-        withContext(Dispatchers.IO) {
-            database.eventDao.insert(event)
-        }
-    }
-
-    suspend fun updateEvent(event: Event) {
-        withContext(Dispatchers.IO) {
-            database.eventDao.update(event)
-        }
-    }
-
-    suspend fun deleteEvent(event: Event) {
-        withContext(Dispatchers.IO) {
-            database.eventDao.delete(event)
-        }
-    }
-
-    suspend fun insertGroup(group: Group) {
-        withContext(Dispatchers.IO) {
-            database.groupDao.insert(group)
-        }
-    }
-
-    suspend fun updateGroup(group: Group) {
-        withContext(Dispatchers.IO) {
-            database.groupDao.update(group)
-        }
-    }
-
-    suspend fun deleteGroup(group: Group) {
-        withContext(Dispatchers.IO) {
-            database.groupDao.delete(group)
-        }
-    }
-
-    suspend fun insertRequest(request: Request) {
-        withContext(Dispatchers.IO) {
-            database.requestDao.insert(request)
-        }
-    }
-
-    suspend fun updateRequest(request: Request) {
-        withContext(Dispatchers.IO) {
-            database.requestDao.update(request)
-        }
-    }
-
-    suspend fun deleteRequest(request: Request) {
-        withContext(Dispatchers.IO) {
-            database.requestDao.delete(request)
-        }
     }
 }

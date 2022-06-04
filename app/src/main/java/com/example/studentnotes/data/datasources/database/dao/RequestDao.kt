@@ -1,8 +1,6 @@
 package com.example.studentnotes.data.datasources.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Request
 
 @Dao
@@ -25,7 +23,7 @@ interface RequestDao {
     fun getById(requestId: String): Request
 
     @Query("select * from request order by request_date")
-    fun getAll(): LiveData<List<Request>>
+    fun getAll(): List<Request>
 
     @Query("delete from request")
     fun clear()
