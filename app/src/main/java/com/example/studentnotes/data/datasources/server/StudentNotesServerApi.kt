@@ -3,6 +3,7 @@ package com.example.studentnotes.data.datasources.server
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.datasources.server.json.LoginRequest
 import com.example.studentnotes.data.datasources.server.json.LoginResponse
+import com.example.studentnotes.data.datasources.server.json.UserToCreate
 import com.example.studentnotes.data.entities.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -29,6 +30,11 @@ private val retrofit = Retrofit.Builder()
 
 
 interface StudentNotesServerService {
+
+    @POST("users")
+    suspend fun createUser(
+        @Body userToCreate: UserToCreate
+    )
 
     @POST("login")
     suspend fun login(

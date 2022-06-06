@@ -4,9 +4,14 @@ import com.example.studentnotes.data.datasources.server.StudentNotesApi
 import com.example.studentnotes.data.datasources.server.json.InitialDataResponse
 import com.example.studentnotes.data.datasources.server.json.LoginRequest
 import com.example.studentnotes.data.datasources.server.json.LoginResponse
+import com.example.studentnotes.data.datasources.server.json.UserToCreate
 import com.example.studentnotes.data.entities.*
 
 class ServerRepository {
+
+    suspend fun createUser(userToCreate: UserToCreate) {
+        return StudentNotesApi.retrofitService.createUser(userToCreate)
+    }
 
     suspend fun login(login: String, password: String): LoginResponse {
         return StudentNotesApi.retrofitService.login(

@@ -98,4 +98,8 @@
     <string name="leave_group">Выйти из группы</string>
     <string name="you_left_group">Вы покинули группу \"%s\"</string>
     <string name="message">Сообщение</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="sign_up">Зарегистрироваться</string>
+    <string name="user_successfully_added">Пользователь успешно добавлен в систему. Вы можете использовать полученные данные для входа</string>
 </resources>

@@ -101,8 +101,8 @@ fun WelcomeScreenBody(
                         try {
                             requestStatus = ApiRequestStatus.LOADING
                             val loginResponse = serverRepo.login(
-                                login,
-                                password
+                                login.trim(),
+                                password.trim()
                             )
                             sharedPrefs?.let {
                                 it.saveLoggedInUser(

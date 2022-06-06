@@ -8,11 +8,12 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun UiHeader(
+    modifier: Modifier = Modifier,
     leftContent: @Composable () -> Unit = {},
     rightRowContent: @Composable RowScope.() -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(64.dp)
     ) {
