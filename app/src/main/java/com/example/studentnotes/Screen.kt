@@ -5,7 +5,6 @@ sealed class Screen(
 ) {
 
     object WelcomeScreen: Screen("welcome_screen")
-    object GetAccessScreen: Screen("get_access_screen")
 
     object MainPagerScreen: Screen("main_pager_screen")
     object EventCreationScreen: Screen("event_creation_screen")

@@ -50,14 +50,6 @@ fun Navigation(
         }
 
         composable(
-            route = Screen.GetAccessScreen.route
-        ) {
-            GetAccessScreenBody(
-                navController = navController
-            )
-        }
-
-        composable(
             route = Screen.EventCreationScreen.route
         ) {
             EventCreationScreenBody(

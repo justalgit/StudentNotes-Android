@@ -1,5 +1,7 @@
 package com.example.studentnotes.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -18,8 +20,8 @@ import com.example.studentnotes.Screen
 import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.UiBigButton
-import com.example.studentnotes.ui.components.UiProgressDialog
 import com.example.studentnotes.ui.components.UiPasswordField
+import com.example.studentnotes.ui.components.UiProgressDialog
 import com.example.studentnotes.ui.components.UiTextField
 import com.example.studentnotes.ui.theme.Blue200
 import com.example.studentnotes.ui.theme.Blue500
@@ -27,8 +29,8 @@ import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.lang.Exception
 import java.net.SocketTimeoutException
+
 
 @ExperimentalComposeUiApi
 @Composable
@@ -158,7 +160,10 @@ fun WelcomeScreenBody(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(Screen.GetAccessScreen.route)
+                            val url = "https://mai.ru/getpass"
+                            val i = Intent(Intent.ACTION_VIEW)
+                            i.data = Uri.parse(url)
+                            context.startActivity(i)
                         }
                 )
             }
