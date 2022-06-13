@@ -9,6 +9,7 @@ import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.entities.User
 import com.example.studentnotes.data.entities.stringifiedName
+import com.example.studentnotes.utils.getCurrentTimestamp
 
 @Composable
 fun EventsListComposable(
@@ -18,6 +19,7 @@ fun EventsListComposable(
     users: List<User>,
     groups: List<Group>
 ) {
+    val currentTimestamp = getCurrentTimestamp()
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -29,6 +31,7 @@ fun EventsListComposable(
                     ?: "...",
                 group = groups.find { it.id == event.groupId }?.title
                     ?: "...",
+                isPassed = event.eventDate < currentTimestamp,
                 onClick = { onEventClick(event) }
             )
         }

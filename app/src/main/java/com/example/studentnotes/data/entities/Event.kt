@@ -7,8 +7,6 @@ import androidx.room.PrimaryKey
 import com.example.studentnotes.utils.replaceDashes
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 @JsonClass(generateAdapter = true)
 data class EventsList(
@@ -58,7 +56,11 @@ data class Event(
     @ColumnInfo(name = "group_id") @Json(name = "group_id")
     var groupId: String,
     @ColumnInfo(name = "is_editable") @Json(name = "is_editable")
-    var isEditable: Boolean = true
+    var isEditable: Boolean = true,
+    @ColumnInfo(name = "user_priority") @Json(name = "user_priority")
+    var user_priority: Int = 1,
+    @ColumnInfo(name = "weighted_priority") @Json(name = "weighted_priority")
+    var weighted_priority: Int = 0
 ) {
     init {
         id = id.replaceDashes()
@@ -66,4 +68,11 @@ data class Event(
         lastModifiedUserId = lastModifiedUserId.replaceDashes()
         groupId = groupId.replaceDashes()
     }
+}
+
+fun Event.stringifiedPriority() = when (user_priority) {
+    2 -> "Высокий"
+    1 -> "Средний"
+    0 -> "Низкий"
+    else -> "нет данных"
 }

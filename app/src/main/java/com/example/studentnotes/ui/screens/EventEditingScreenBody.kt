@@ -4,8 +4,12 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -30,6 +34,7 @@ import com.example.studentnotes.data.datasources.database.StudentNotesDatabase
 import com.example.studentnotes.data.datasources.server.ApiRequestStatus
 import com.example.studentnotes.data.entities.Event
 import com.example.studentnotes.data.entities.Group
+import com.example.studentnotes.data.entities.stringifiedPriority
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
@@ -119,6 +124,9 @@ fun EventEditingScreenBody(
 
     var isEventModified by rememberSaveable { mutableStateOf(false) }
 
+    val priorities = listOf("Высокий", "Средний", "Низкий")
+    var selectedPriority = remember { mutableStateOf(event.stringifiedPriority()) }
+
     val dateDialogState = rememberMaterialDialogState()
     MaterialDialog(
         dialogState = dateDialogState,
@@ -157,7 +165,9 @@ fun EventEditingScreenBody(
     ) {
 
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f,  fill = true)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
         ) {
             UiHeader(
@@ -211,6 +221,11 @@ fun EventEditingScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
+            UiDropdownList(
+                label = stringResource(R.string.priority),
+                selectedOption = selectedPriority,
+                suggestions = priorities
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -270,7 +285,7 @@ fun EventEditingScreenBody(
                 )
             }
         }
-
+        Spacer(Modifier.height(12.dp))
         UiBigButton(
             text = stringResource(R.string.save_changes),
             isEnabled = isEventModified
@@ -285,6 +300,7 @@ fun EventEditingScreenBody(
                     lastModifiedUserId = currentUserId
                     event.eventDate = getTimestampFromDateAndTime(eventDate, eventTime)
                     lastModifiedDate = getCurrentTimestamp()
+                    user_priority = eventPriorityToInt(selectedPriority.value)
                 }
                 viewModel.updateEvent(event)
             }

@@ -66,8 +66,10 @@ class MainPagerViewModel(context: Context) : ViewModel() {
         try {
             _requestStatus.value = ApiRequestStatus.LOADING
             _userInitialData.value = serverRepo.getInitialData(userId)
-            databaseRepo.clearData()
-            databaseRepo.insertInitialData(_userInitialData.value!!)
+            with(databaseRepo) {
+                clearData()
+                insertInitialData(_userInitialData.value!!)
+            }
             _requestStatus.value = ApiRequestStatus.DONE
             Log.d("initialData", "success")
         }
@@ -138,7 +140,9 @@ fun MainPagerScreenBody(
                 when (selectedMenu) {
                     menus[0] -> EventsScreenBody(
                         navController = navController,
-                        eventsList = initialData?.eventsList ?: emptyList(),
+                        eventsList = initialData?.eventsList?.sortedByDescending {
+                            it.weighted_priority
+                        } ?: emptyList(),
                         groupsList = initialData?.groupsList ?: emptyList(),
                         usersList = initialData?.usersList ?: emptyList()
                     )

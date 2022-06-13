@@ -10,3 +10,10 @@ fun String.cutOff(limit: Int) =
         this
 
 fun String.replaceDashes() = this.replace("-", "")
+
+fun eventPriorityToInt(stringifiedPriority: String) = when (stringifiedPriority) {
+    "Высокий" -> 2
+    "Средний" -> 1
+    "Низкий" -> 0
+    else -> 1
+}

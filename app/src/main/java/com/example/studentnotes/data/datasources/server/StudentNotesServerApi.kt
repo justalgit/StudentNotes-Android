@@ -105,6 +105,19 @@ interface StudentNotesServerService {
         @Query("group_id") groupId: String,
         @Query("user_id") userId: String
     )
+
+    @POST("check-event")
+    suspend fun checkEvent(
+        @Query("event_id") eventId: String,
+        @Query("user_id") userId: String
+    )
+
+    @POST("change-event-priority")
+    suspend fun changeEventPriority(
+        @Query("event_id") eventId: String,
+        @Query("user_id") userId: String,
+        @Query("priority") priority: Int
+    )
 }
 
 

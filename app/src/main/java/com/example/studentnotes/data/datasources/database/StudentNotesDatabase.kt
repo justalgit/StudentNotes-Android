@@ -9,7 +9,7 @@ import com.example.studentnotes.data.entities.*
 
 @Database(
     entities = [Event::class, User::class, Group::class, Request::class, UserGroupRelation::class],
-    version = 6,
+    version = 9,
     exportSchema = false
 )
 abstract class StudentNotesDatabase : RoomDatabase() {

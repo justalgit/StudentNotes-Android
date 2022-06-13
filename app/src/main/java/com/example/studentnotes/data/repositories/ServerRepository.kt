@@ -31,6 +31,14 @@ class ServerRepository {
         return StudentNotesApi.retrofitService.getAllUsers()
     }
 
+    suspend fun checkEvent(eventId: String, userId: String) {
+        return StudentNotesApi.retrofitService.checkEvent(eventId, userId)
+    }
+
+    suspend fun changeEventPriority(eventId: String, userId: String, priority: Int) {
+        return StudentNotesApi.retrofitService.changeEventPriority(eventId, userId, priority)
+    }
+
     suspend fun createGroup(group: Group) {
         return StudentNotesApi.retrofitService.createGroup(group)
     }

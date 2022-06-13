@@ -102,4 +102,10 @@
     <string name="surname">Фамилия</string>
     <string name="sign_up">Зарегистрироваться</string>
     <string name="user_successfully_added">Пользователь успешно добавлен в систему. Вы можете использовать полученные данные для входа</string>
+    <string name="priority">Приоритет</string>
+    <string name="no_data">Нет данных</string>
+    <string name="change_user_priority">Изменить приоритет</string>
+    <string name="this_priority_will_be_set_for_you">Данный приоритет будет установлен только для вас. Остальные пользователи будут иметь приоритет по умолчанию</string>
+    <string name="this_priority_will_be_set_as_default_for_all_users">Данный приоритет будет установлен для всех пользователей по умолчанию</string>
+    <string name="priority_changed_successfully">Приоритет успешно изменен</string>
 </resources>

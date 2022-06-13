@@ -9,6 +9,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -20,9 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.studentnotes.R
 import com.example.studentnotes.Screen
@@ -33,6 +35,7 @@ import com.example.studentnotes.data.entities.Group
 import com.example.studentnotes.data.repositories.DatabaseRepository
 import com.example.studentnotes.data.repositories.ServerRepository
 import com.example.studentnotes.ui.components.*
+import com.example.studentnotes.ui.theme.Typography
 import com.example.studentnotes.utils.*
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -138,6 +141,9 @@ fun EventCreationScreenBody(
         )
     }
 
+    val priorities = listOf("Высокий", "Средний", "Низкий")
+    var selectedPriority = remember { mutableStateOf(priorities[1]) }
+
     val dateDialogState = rememberMaterialDialogState()
     MaterialDialog(
         dialogState = dateDialogState,
@@ -174,7 +180,9 @@ fun EventCreationScreenBody(
     ) {
 
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f,  fill = true)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)
         ) {
@@ -223,6 +231,17 @@ fun EventCreationScreenBody(
                     label = stringResource(R.string.description)
                 )
             }
+            UiDropdownList(
+                label = stringResource(R.string.priority),
+                selectedOption = selectedPriority,
+                suggestions = priorities
+            )
+            Text(
+                text = stringResource(R.string.this_priority_will_be_set_as_default_for_all_users),
+                style = Typography.caption,
+                textAlign = TextAlign.Center,
+                color = Color.Gray
+            )
             UiDropdownList(
                 label = stringResource(R.string.group),
                 selectedOption = selectedGroupTitle,
@@ -277,7 +296,7 @@ fun EventCreationScreenBody(
                 )
             }
         }
-
+        Spacer(Modifier.height(12.dp))
         UiBigButton(
             text = stringResource(R.string.create_event),
             isEnabled = eventTitle.isNotBlank() && (
@@ -295,7 +314,8 @@ fun EventCreationScreenBody(
                         lastModifiedDate = getCurrentTimestamp(),
                         lastModifiedUserId = currentUserId,
                         groupId = groupId,
-                        isEditable = isEventEditable
+                        isEditable = isEventEditable,
+                        user_priority = eventPriorityToInt(selectedPriority.value)
                     )
                 )
                 showToast(
